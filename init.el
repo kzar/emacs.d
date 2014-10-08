@@ -86,9 +86,11 @@
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
 (setq org-agenda-files '("~/Dropbox/org"))
-(setq org-todo-keywords '((sequence "TODO" "INPROGRESS" "WAITING" "DONE"))
+(setq org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE")
+                          (sequence "WAITING(w@/!)" "CANCELLED(c@/!)"))
       org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))
-                               ("WAITING" . (:foreground "dark orange" :weight bold))))
+                               ("WAITING" . (:foreground "dark orange" :weight bold))
+                               ("CANCELLED" (:foreground "green" :weight bold))))
 (add-hook 'org-mode-hook (lambda () (flyspell-mode 1)))
 (add-hook 'org-mode-hook (lambda () (writegood-mode 1)))
 
