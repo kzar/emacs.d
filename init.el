@@ -38,8 +38,7 @@
                         web-mode
                         writegood-mode
                         yaml-mode
-                        yasnippet
-                        zone-matrix))
+                        yasnippet))
 
 (defun abedra/packages-installed-p (packages)
   (loop for pkg in packages
