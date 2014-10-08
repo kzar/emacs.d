@@ -56,6 +56,8 @@
       ;initial-scratch-message t
       initial-major-mode 'org-mode)
 
+(prefer-coding-system 'utf-8)
+
 (when window-system
   (menu-bar-mode -1)
   (tool-bar-mode -1))
