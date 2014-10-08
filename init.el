@@ -1,5 +1,6 @@
 (setq user-full-name "Dave Barker")
 (setq user-mail-address "kzar@kzar.co.uk")
+(load "~/.emacs.d/my-helpers.el")
 (load "~/.emacs.d/my-secrets.el")
 
 (require 'cl)
@@ -57,13 +58,22 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 
+; Enable column numbering
+(setq column-number-mode t)
+
+; Highlight matching parenthesis green
 (show-paren-mode 1)
 (setq show-paren-delay-0)
 (set-face-background 'show-paren-match "#99FF00")
 
+; Set default code indent to 2 spaces
 (setq tab-width 2
       indent-tabs-mode nil)
 
+; Replace zap-to-char with custom zap-up-to-char function
+(global-set-key "\M-z" 'zap-up-to-char)
+
+; org-mode
 (add-to-list `auto-mode-alist `("\\.org$" . org-mode))
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
@@ -75,14 +85,12 @@
 (add-hook 'org-mode-hook (lambda () (flyspell-mode 1)))
 (add-hook 'org-mode-hook (lambda () (writegood-mode 1)))
 
+; Tramp
 (setq tramp-default-method "ssh")
 
 ; Setup buffer switching
 (iswitchb-mode)
 (setq iswitchb-default-method 'samewindow)
-
-(add-to-list 'load-path "/usr/share/emacs/site-lisp/epg/")
-;(require 'epa-setup)
 
 ; Setup the Mac keys
 (setq mac-option-key-is-meta nil)
@@ -97,6 +105,18 @@
 ; Add to the executable path for executable-find
 (add-to-list `exec-path "/usr/local/bin")
 (add-to-list `exec-path "/opt/local/bin")
+
+; Frame width
+(defun fix-frame-width ()
+  (interactive)
+  (set-frame-width (selected-frame 80)))
+(add-to-list 'default-frame-alist '(width . 80))
+
+; Highlight tabs and trailing whitespace red
+(setq whitespace-style '(face trailing tabs))
+(custom-set-faces
+ '(whitespace-tab ((t (:background "red")))))
+(global-whitespace-mode)
 
 ; Fix flyspell
 (setq-default ispell-program-name "aspell")
@@ -130,80 +150,52 @@
 ;; Snipplets
 (require 'yasnippet)
 
-; Use RVM to get correct ruby versions
-(rvm-use-default)
-
-; Turn off echo for ruby "irb" REPL
-(defun echo-false-comint ()
-  (setq comint-process-echoes t))
-(add-hook 'comint-mode-hook 'echo-false-comint)
-
-; Stop Ruby mode inserting encoding everywhere
-(setq ruby-insert-encoding-magic-comment nil)
-
-; Frame width
-(defun fix-frame-width ()
-  (interactive)
-  (set-frame-width (selected-frame 80)))
-(add-to-list 'default-frame-alist '(width . 80))
-
-; Highlight tabs and trailing whitespace
-(setq whitespace-style '(face trailing tabs))
-(custom-set-faces
- '(whitespace-tab ((t (:background "red")))))
-(global-whitespace-mode)
-
-; Coffee-script mode
+; CoffeeScript
 (add-to-list `auto-mode-alist `("\\.coffee$" . coffee-mode))
 (add-to-list `auto-mode-alist `("Cakefile" . coffee-mode))
 (add-hook 'coffee-mode-hook
           '(lambda ()
              (setq tab-width 2)))
 
-; Enable column numbering
-(setq column-number-mode t)
-
+; YAML
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
 
-(defun describe-eol ()
-  (interactive)
-  (let ((eol-type (coding-system-eol-type buffer-file-coding-system)))
-    (when (vectorp eol-type)
-      (setq eol-type (coding-system-eol-type (aref eol-type 0))))
-    (message "Line endings are of type: %s"
-             (case eol-type
-               (0 "Unix") (1 "DOS") (2 "Mac") (t "Unknown")))))
-
-;; Python Hook
+;; Python
 (add-hook 'python-mode-hook
           (function (lambda ()
                       (setq indent-tabs-mode nil
                             tab-width 2))))
+; Ruby
+(rvm-use-default)
+(defun echo-false-comint ()
+  (setq comint-process-echoes t))
+(add-hook 'comint-mode-hook 'echo-false-comint)
+(setq ruby-insert-encoding-magic-comment nil)
 
-; Set up ansi-term with colours as the shell of choice
+; ansi-term
 (setenv "PROMPT_COMMAND")
 (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 
-; Set up highlighting and brower-repl for clojurescript
+; Clojurescript
 (setq auto-mode-alist (cons '("\\.cljs" . clojure-mode) auto-mode-alist))
-
 (defun browser-repl (lisp-path)
   (interactive "DCLJS project path: ")
   (cd lisp-path)
   (run-lisp "/usr/local/bin/lein trampoline cljsbuild repl-listen"))
 
+; Markdown and reStructuredText
 (add-to-list `auto-mode-alist `("\\.md$" . markdown-mode))
 (add-hook 'markdown-mode-hook (lambda () (flyspell-mode 1)))
 (add-hook 'markdown-mode-hook (lambda () (writegood-mode 1)))
-
 (add-hook 'rst-mode-hook (lambda () (flyspell-mode 1)))
 (add-hook 'rst-mode-hook (lambda () (writegood-mode 1)))
 
+; Puppet
 (add-to-list `auto-mode-alist `("\\.pp$" . puppet-mode))
 
-; Set up web-mode for HTML etc
+; Web-mode
 (require 'web-mode)
 (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.pt\\'" . web-mode))
@@ -223,20 +215,12 @@
 (set-face-attribute 'web-mode-doctype-face nil :foreground "purple")
 (set-face-attribute 'web-mode-function-name-face nil :foreground "blue")
 (set-face-attribute 'web-mode-function-call-face nil :foreground "black")
-
 (add-hook 'web-mode-hook
           (lambda ()
             (local-set-key (kbd "RET") 'newline-and-indent)
             (whitespace-mode 0)))
 (setq web-mode-code-indent-offset 2)
 (setq web-mode-markup-indent-offset 2)
-
-(defun zap-up-to-char (char)
-  (interactive "cCharacter to delete up to: ")
-  (zap-to-char 1 char)
-  (insert char)
-  (backward-char))
-(global-set-key "\M-z" 'zap-up-to-char)
 
 ; Force Emacs to allow us to edit files that are mistakenly marked readonly
 ; (Sometimes an issue when mounting over NFS)
