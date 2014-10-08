@@ -31,6 +31,7 @@
                         php-mode
                         pkg-info
                         puppet-mode
+;                       rcirc-notify
                         rvm
                         ucs-utils
                         unicode-fonts
@@ -57,6 +58,9 @@
       initial-major-mode 'org-mode)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
+
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
 
 ; Enable column numbering
 (setq column-number-mode t)
@@ -92,16 +96,6 @@
 (iswitchb-mode)
 (setq iswitchb-default-method 'samewindow)
 
-; Setup the Mac keys
-(setq mac-option-key-is-meta nil)
-(setq mac-command-key-is-meta t)
-(setq mac-option-modifier nil)
-(setq mac-command-modifier 'meta)
-(global-set-key (kbd "<kp-delete>") 'delete-char)
-
-; Fix the Mac path
-(setenv "PATH" (concat "/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/X11/bin:" (getenv "PATH")))
-
 ; Add to the executable path for executable-find
 (add-to-list `exec-path "/usr/local/bin")
 (add-to-list `exec-path "/opt/local/bin")
@@ -125,17 +119,17 @@
 
 ; IRC
 (require 'tls)
-(setq rcirc-server-alist '(("irc.freenode.net" :port 31337 :nick "kzar"
-                            :password (format "%s/irc.mozilla.org:%s" znc-user znc-password)
+(setq rcirc-server-alist `(("irc.freenode.net" :port 31337 :nick "kzar"
+                            :password ,(format "%s/irc.freenode.net:%s" znc-user znc-password)
                             :encryption tls)
                            ("irc.mozilla.org" :port 31337 :nick "kzar"
-                            :password (format "%s/irc.mozilla.org:%s" znc-user znc-password)
+                            :password ,(format "%s/irc.mozilla.org:%s" znc-user znc-password)
                             :encryption tls)))
 (add-hook 'rcirc-mode-hook (lambda () (flyspell-mode 1)))
+; Load manually until my pull request is accepted
+; https://github.com/nicferrier/rcirc-notify/pull/5/commits
 (load "~/.emacs.d/lisp-personal/rcirc-notify.el")
-
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
+(require 'rcirc-notify)
 
 ;; Clojure
 (require 'clojure-mode)
@@ -231,3 +225,10 @@
               (set (make-local-variable 'inhibit-read-only) t)
               (fset (make-local-variable 'file-writable-p) (lambda (filename) t))
               (set (make-local-variable 'buffer-read-only) nil))))
+
+; Load machine specific settings
+; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/#comment-36295
+(let ((local-conf-name (format "~/.emacs.d/%s.el" system-name)))
+  (cond ((file-exists-p local-conf-name)
+         (load-file local-conf-name))
+        ((message "%s doesn’t exist or I’d load it." local-conf-name))))
