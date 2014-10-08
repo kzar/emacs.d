@@ -36,7 +36,6 @@
                         ucs-utils
                         unicode-fonts
                         web-mode
-                        writegood-mode
                         yaml-mode
                         yasnippet))
 
@@ -92,7 +91,6 @@
                                ("WAITING" . (:foreground "dark orange" :weight bold))
                                ("CANCELLED" (:foreground "green" :weight bold))))
 (add-hook 'org-mode-hook (lambda () (flyspell-mode 1)))
-(add-hook 'org-mode-hook (lambda () (writegood-mode 1)))
 
 ; Tramp
 (setq tramp-default-method "ssh")
@@ -187,9 +185,7 @@
 ; Markdown and reStructuredText
 (add-to-list `auto-mode-alist `("\\.md$" . markdown-mode))
 (add-hook 'markdown-mode-hook (lambda () (flyspell-mode 1)))
-(add-hook 'markdown-mode-hook (lambda () (writegood-mode 1)))
 (add-hook 'rst-mode-hook (lambda () (flyspell-mode 1)))
-(add-hook 'rst-mode-hook (lambda () (writegood-mode 1)))
 
 ; Puppet
 (add-to-list `auto-mode-alist `("\\.pp$" . puppet-mode))
