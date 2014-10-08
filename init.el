@@ -1,7 +1,3 @@
-; https://github.com/railwaycat/emacs-mac-port
-; http://www.aaronbedra.com/emacs.d/
-; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/
-
 (setq user-full-name "Dave Barker")
 (setq user-mail-address "kzar@kzar.co.uk")
 (load "~/.emacs.d/my-secrets.el")
