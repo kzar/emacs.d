@@ -91,6 +91,13 @@
                                ("WAITING" . (:foreground "dark orange" :weight bold))
                                ("CANCELLED" (:foreground "green" :weight bold))))
 (add-hook 'org-mode-hook (lambda () (flyspell-mode 1)))
+(setq org-todo-state-tags-triggers
+      (quote (("CANCELLED" ("CANCELLED" . t))
+              ("WAITING" ("WAITING" . t))
+              (done ("WAITING"))
+              ("TODO" ("WAITING") ("CANCELLED"))
+              ("NEXT" ("WAITING") ("CANCELLED"))
+              ("DONE" ("WAITING") ("CANCELLED")))))
 
 ; Tramp
 (setq tramp-default-method "ssh")
