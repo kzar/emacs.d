@@ -54,13 +54,12 @@
 (setq ;inhibit-splash-screen t
       ;initial-scratch-message t
       initial-major-mode 'org-mode)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
 
 (show-paren-mode 1)
 (setq show-paren-delay-0)
 (set-face-background 'show-paren-match "#99FF00")
-
-(menu-bar-mode -1)
-(tool-bar-mode -1)
 
 (setq tab-width 2
       indent-tabs-mode nil)
@@ -118,13 +117,11 @@
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
-;; clojure-mode
-;(load "~/clojure-mode.el")
-;(require 'clojure-mode)
+;; Clojure
+(require 'clojure-mode)
 (setq clojure-mode-use-backtracking-indent t)
 
 ;; Javascript
-;(load "~/.emacs.d/lisp/js2-mode.elc")
 (autoload 'js2-mode "js2" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 (setf js2-bounce-indent-p t)
@@ -133,39 +130,16 @@
 ;; Snipplets
 (require 'yasnippet)
 
-
-;;; This was installed by package-install.el.
-;;; This provides support for the package system and
-;;; interfacing with ELPA, the package archive.
-;;; Move this code earlier if you want to reference
-;;; packages in your .emacs.
-;(when
-;    (load
-;     (expand-file-name "~/.emacs.d/elpa/package.el"))
-;  (package-initialize))
-
-;; Add auto-complete mode
-;(add-to-list 'load-path "~/.emacs.d/")
-;(require 'auto-complete-config)
-;(add-to-list 'ac-dictionary-directories "~/.emacs.d//ac-dict")
-;(ac-config-default)
-
 ; Use RVM to get correct ruby versions
-;(load "~/.emacs.d/lisp/rvm.el")
 (rvm-use-default)
 
 ; Turn off echo for ruby "irb" REPL
 (defun echo-false-comint ()
-(setq comint-process-echoes t))
-(add-hook  'comint-mode-hook  'echo-false-comint)
+  (setq comint-process-echoes t))
+(add-hook 'comint-mode-hook 'echo-false-comint)
 
 ; Stop Ruby mode inserting encoding everywhere
 (setq ruby-insert-encoding-magic-comment nil)
-
-;; Clojure repl highlighting
-;(load "~/clojure-test-mode.el")
-;(load "~/durendal.el")
-;(load "~/init-clojure.el")
 
 ; Frame width
 (defun fix-frame-width ()
@@ -177,20 +151,14 @@
 (setq whitespace-style '(face trailing tabs))
 (custom-set-faces
  '(whitespace-tab ((t (:background "red")))))
-;(add-hook 'prog-mode-hook 'whitespace-mode)
-;(add-hook 'markdown-mode-hook 'whitespace-mode)
 (global-whitespace-mode)
 
-
 ; Coffee-script mode
-;(load "~/.emacs.d/lisp/coffee-mode.el")
 (add-to-list `auto-mode-alist `("\\.coffee$" . coffee-mode))
 (add-to-list `auto-mode-alist `("Cakefile" . coffee-mode))
 (add-hook 'coffee-mode-hook
           '(lambda ()
-             ;(whitespace-mode)
              (setq tab-width 2)))
-
 
 ; Enable column numbering
 (setq column-number-mode t)
@@ -218,8 +186,6 @@
 (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 
-;(setq slime-net-coding-system 'utf-8-unix)
-
 ; Set up highlighting and brower-repl for clojurescript
 (setq auto-mode-alist (cons '("\\.cljs" . clojure-mode) auto-mode-alist))
 
@@ -228,42 +194,27 @@
   (cd lisp-path)
   (run-lisp "/usr/local/bin/lein trampoline cljsbuild repl-listen"))
 
-; Get .erb files loading as html
-;(add-to-list `auto-mode-alist `("\\.erb$" . html-mode))
-; Get .twig files loading as html
-;(add-to-list `auto-mode-alist `("\\.twig$" . html-mode))
-; Get .mustache files loading as html
-;(add-to-list `auto-mode-alist `("\\.mustache$" . html-mode))
-; Stop html-mode using tabs
-;(setq-default indent-tabs-mode nil)
-
 (add-to-list `auto-mode-alist `("\\.md$" . markdown-mode))
 (add-hook 'markdown-mode-hook (lambda () (flyspell-mode 1)))
+(add-hook 'markdown-mode-hook (lambda () (writegood-mode 1)))
 
 (add-hook 'rst-mode-hook (lambda () (flyspell-mode 1)))
+(add-hook 'rst-mode-hook (lambda () (writegood-mode 1)))
 
-
-;(load-file "~/.emacs.d/lisp/puppet-mode.el")
 (add-to-list `auto-mode-alist `("\\.pp$" . puppet-mode))
 
 ; Set up web-mode for HTML etc
-;(load "~/.emacs.d/lisp/web-mode.el")
 (require 'web-mode)
 (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.pt\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.php$" . web-mode))
-;(add-to-list 'auto-mode-alist '("\\.jsp\\'" . web-mode))
-;(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.tmpl?\\'" . web-mode))
-;(setq web-mode-whitespaces-regexp "^[\t]+\\|[\t ]+$")
-;(setq web-mode-enable-whitespaces t)
 (setq web-mode-display-table nil)
-;(set-face-attribute 'web-mode-whitespace-face nil :background "red")
 (setq-default indent-tabs-mode nil)
 (set-face-attribute 'web-mode-html-tag-face nil :foreground "blue")
 (set-face-attribute 'web-mode-html-attr-name-face nil :foreground "brown")
@@ -287,6 +238,9 @@
   (backward-char))
 (global-set-key "\M-z" 'zap-up-to-char)
 
+; Force Emacs to allow us to edit files that are mistakenly marked readonly
+; (Sometimes an issue when mounting over NFS)
+; http://kzar.co.uk/blog/2013/12/09/disable-emacs-read-only-warning-tramp-nfs/
 (add-hook 'find-file-hook
           (lambda ()
             (when (file-remote-p (buffer-file-name))
