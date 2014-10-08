@@ -10,7 +10,7 @@
 ; Fix the Mac path
 (setenv "PATH" (concat "/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/X11/bin:" (getenv "PATH")))
 
-; Play rcirc-notify play the Skype message sound on notification
+; Play Skype message sound on rcirc-notify IRC notifications
 (add-hook 'rcirc-notify-page-me-hooks
           (lambda (msg)
             (start-process "beep-process" nil "afplay"
