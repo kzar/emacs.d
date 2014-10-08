@@ -55,8 +55,10 @@
 (setq ;inhibit-splash-screen t
       ;initial-scratch-message t
       initial-major-mode 'org-mode)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
+
+(when window-system
+  (menu-bar-mode -1)
+  (tool-bar-mode -1))
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
