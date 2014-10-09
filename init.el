@@ -141,6 +141,7 @@
 ; https://github.com/nicferrier/rcirc-notify/pull/5/commits
 (load "~/.emacs.d/lisp-personal/rcirc-notify.el")
 (require 'rcirc-notify)
+(setq rcirc-notify-timeout 0)
 
 ;; Clojure
 (require 'clojure-mode)
