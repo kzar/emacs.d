@@ -98,6 +98,7 @@
               ("TODO" ("WAITING") ("CANCELLED"))
               ("NEXT" ("WAITING") ("CANCELLED"))
               ("DONE" ("WAITING") ("CANCELLED")))))
+(setq org-startup-indented t)
 
 ; Tramp
 (setq tramp-default-method "ssh")
@@ -176,6 +177,7 @@
   (setq comint-process-echoes t))
 (add-hook 'comint-mode-hook 'echo-false-comint)
 (setq ruby-insert-encoding-magic-comment nil)
+(add-to-list 'auto-mode-alist '("Vagrantfile" . ruby-mode))
 
 ; ansi-term
 (setenv "PROMPT_COMMAND")
