@@ -23,6 +23,7 @@
                         ir-black-theme
                         js2-mode
                         list-utils
+                        magit
                         markdown-mode
                         nrepl
                         paredit
