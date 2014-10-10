@@ -80,6 +80,10 @@
 ; Replace zap-to-char with custom zap-up-to-char function
 (global-set-key "\M-z" 'zap-up-to-char)
 
+; Magit mode
+(global-set-key (kbd "C-c g") 'magit-status)
+(setq magit-diff-refine-hunk t)
+
 ; org-mode
 (add-to-list `auto-mode-alist `("\\.org$" . org-mode))
 (define-key global-map "\C-cl" 'org-store-link)
