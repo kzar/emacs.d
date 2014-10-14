@@ -83,6 +83,7 @@
 ; Magit mode
 (global-set-key (kbd "C-c g") 'magit-status)
 (setq magit-diff-refine-hunk t)
+(add-hook 'git-commit-mode-hook (lambda () (flyspell-mode 1)))
 
 ; org-mode
 (add-to-list `auto-mode-alist `("\\.org$" . org-mode))
