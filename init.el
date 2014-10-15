@@ -174,6 +174,7 @@
 (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
 
 ;; Python
+(setq python-indent 2)
 (add-hook 'python-mode-hook
           (function (lambda ()
                       (setq indent-tabs-mode nil
