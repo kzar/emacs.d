@@ -32,7 +32,7 @@
                         php-mode
                         pkg-info
                         puppet-mode
-;                       rcirc-notify
+                        rcirc-notify
                         rvm
                         ucs-utils
                         unicode-fonts
@@ -143,11 +143,8 @@
                             :password ,(format "%s/irc.mozilla.org:%s" znc-user znc-password)
                             :encryption tls)))
 (add-hook 'rcirc-mode-hook (lambda () (flyspell-mode 1)))
-; Load manually until my pull request is accepted
-; https://github.com/nicferrier/rcirc-notify/pull/5/commits
-(load "~/.emacs.d/lisp-personal/rcirc-notify.el")
-(require 'rcirc-notify)
 (setq rcirc-notify-timeout 0)
+(rcirc-notify-add-hooks)
 
 ;; Clojure
 (require 'clojure-mode)
