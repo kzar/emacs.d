@@ -191,6 +191,8 @@
 (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 
+(setq term-suppress-hard-newline t)
+
 ; Clojurescript
 (setq auto-mode-alist (cons '("\\.cljs" . clojure-mode) auto-mode-alist))
 (defun browser-repl (lisp-path)
