@@ -133,6 +133,9 @@
 (setq-default ispell-program-name "aspell")
 (setq ispell-program-name "aspell")
 (setq flyspell-issue-welcome-flag nil)
+(setq flyspell-default-dictionary "british"
+      ispell-local-dictionary "british"
+      ispell-dictionary "british")
 
 ; IRC
 (require 'tls)
