@@ -16,4 +16,4 @@
 ; http://lists.gnu.org/archive/html/help-gnu-emacs/2009-10/msg00187.html
 (defun sort-csv ()
   (interactive)
-  (sort-regexp-fields nil "[a-z]+" "\\&" (region-beginning) (region-end)))
+  (sort-regexp-fields nil "[^ ,]+" "\\&" (region-beginning) (region-end)))
