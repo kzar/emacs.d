@@ -235,6 +235,9 @@
 (setq web-mode-code-indent-offset 2)
 (setq web-mode-markup-indent-offset 2)
 
+; CSS Mode
+(setq css-indent-offset 2)
+
 ; Force Emacs to allow us to edit files that are mistakenly marked readonly
 ; (Sometimes an issue when mounting over NFS)
 ; http://kzar.co.uk/blog/2013/12/09/disable-emacs-read-only-warning-tramp-nfs/
