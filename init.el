@@ -154,7 +154,6 @@
 (setq clojure-mode-use-backtracking-indent t)
 
 ;; Javascript
-(autoload 'js2-mode "js2" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 (setf js2-bounce-indent-p t)
 (setq-default js2-basic-offset 2)
