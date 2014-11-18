@@ -25,7 +25,6 @@
                         list-utils
                         magit
                         markdown-mode
-                        nrepl
                         paredit
                         pcache
                         persistent-soft
@@ -152,6 +151,10 @@
 ;; Clojure
 (require 'clojure-mode)
 (setq clojure-mode-use-backtracking-indent t)
+
+(add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+(setq nrepl-log-messages t)
+(setq nrepl-hide-special-buffers t)
 
 ;; Javascript
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
