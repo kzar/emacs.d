@@ -11,11 +11,11 @@
                             (shell-command-to-string "date +'%d/%b/%Y %H:%M:%S'")))
 
 ; Store a log of notifications in case I need to look back through them
-(shell-command "touch" "~/.cache/irc-log.log")
+(shell-command "touch" "~/.cache/irc-notifications.log")
 (add-hook 'rcirc-notify-page-me-hooks
           (lambda (msg)
             (write-region (format "[%s] - %s\n" (current-date) msg)
-                          nil "~/.cache/irc-log.log" 'append)))
+                          nil "~/.cache/irc-notifications.log" 'append)))
 
 ; Fix Unicode symbols
 (when (member "Symbola" (font-family-list))
