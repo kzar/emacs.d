@@ -20,3 +20,6 @@
 ; Fix Unicode symbols
 (when (member "Symbola" (font-family-list))
   (set-fontset-font t 'unicode "Symbola" nil 'prepend))
+
+; Make highlighted text "yankable"
+(setq x-select-enable-primary t)
