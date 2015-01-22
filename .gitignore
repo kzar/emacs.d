@@ -6,3 +6,4 @@ my-secrets.el~
 tramp
 url/cookies
 var/
+session.*
