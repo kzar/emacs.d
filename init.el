@@ -158,6 +158,7 @@
 
 ;; Javascript
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.jsm$" . js2-mode))
 (setf js2-bounce-indent-p t)
 (setq-default js2-basic-offset 2)
 (setq js-indent-level 2)
