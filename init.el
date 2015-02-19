@@ -15,7 +15,6 @@
 
 (defvar kzar/packages '(cider
                         clojure-mode
-                        clojure-test-mode
                         coffee-mode
                         dash
                         epl
