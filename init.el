@@ -110,7 +110,7 @@
    (python . t)
    (ruby . t)
    (js . t)))
-
+(setq org-src-fontify-natively t)
 
 ; Tramp
 (setq tramp-default-method "ssh")
