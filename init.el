@@ -103,6 +103,14 @@
               ("NEXT" ("WAITING") ("CANCELLED"))
               ("DONE" ("WAITING") ("CANCELLED")))))
 (setq org-startup-indented t)
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (clojure . t)
+   (python . t)
+   (ruby . t)
+   (js . t)))
+
 
 ; Tramp
 (setq tramp-default-method "ssh")
