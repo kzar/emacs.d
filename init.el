@@ -112,6 +112,15 @@
    (ruby . t)
    (js . t)))
 (setq org-src-fontify-natively t)
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+(setq org-latex-listings 'minted)
+(setq org-latex-pdf-process
+      '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+(eval-after-load "org"
+  (lambda ()
+    (require 'ox-md nil t)
+    (require 'ox-odt nil t)
+    (require 'ox-publish nil t)))
 
 ; Tramp
 (setq tramp-default-method "ssh")
