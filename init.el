@@ -19,6 +19,7 @@
                         dash
                         epl
                         font-utils
+                        gist
                         ir-black-theme
                         js2-mode
                         list-utils
