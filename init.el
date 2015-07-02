@@ -142,7 +142,7 @@
 (add-to-list 'default-frame-alist '(width . 80))
 
 ; Highlight tabs and trailing whitespace red
-(setq whitespace-style '(face trailing tabs))
+(setq whitespace-style '(face trailing tabs lines-tail))
 (custom-set-faces
  '(whitespace-tab ((t (:background "red")))))
 (global-whitespace-mode)
