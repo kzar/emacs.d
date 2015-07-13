@@ -82,6 +82,7 @@
 
 ; Magit mode
 (global-set-key (kbd "C-c g") 'magit-status)
+(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 (setq magit-diff-refine-hunk t)
 (add-hook 'git-commit-mode-hook (lambda () (flyspell-mode 1)))
 (setq magit-last-seen-setup-instructions "1.4.0")
