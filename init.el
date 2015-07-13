@@ -85,7 +85,8 @@
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 (setq magit-diff-refine-hunk t)
 (add-hook 'git-commit-mode-hook (lambda () (flyspell-mode 1)))
-(setq magit-last-seen-setup-instructions "1.4.0")
+(setq magit-last-seen-setup-instructions "2.1.0")
+(setq magit-revert-buffers t)
 
 ; org-mode
 (add-to-list `auto-mode-alist `("\\.org$" . org-mode))
