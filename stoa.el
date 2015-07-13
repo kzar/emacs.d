@@ -12,3 +12,7 @@
 
 ; Make highlighted text "yankable"
 (setq x-select-enable-primary t)
+
+; Configure outgoing mail
+(setq send-mail-function 'sendmail-send-it)
+(setq sendmail-program "/usr/bin/msmtp")
