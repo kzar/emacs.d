@@ -145,10 +145,17 @@
 (add-to-list 'default-frame-alist '(width . 80))
 
 ; Highlight tabs and trailing whitespace red
-(setq whitespace-style '(face trailing tabs lines-tail))
+(setq whitespace-style '(face trailing tabs lines-tail space-mark))
 (custom-set-faces
  '(whitespace-tab ((t (:background "red")))))
 (global-whitespace-mode)
+; Display zero-width unicode characters as standard spaces so we don't miss them
+(setq whitespace-display-mappings '((space-mark ?\x200B [? ])
+                                    (space-mark ?\x200C [? ])
+                                    (space-mark ?\x200D [? ])
+                                    (space-mark ?\xFEFF [? ])))
+; Add zero-width unicode characters to tab regexp so we highlight them red too
+(setq whitespace-tab-regexp "\\([\t\u200B\u200C\u200D\uFEFF]\\)")
 
 ; Fix flyspell
 (setq-default ispell-program-name "aspell")
