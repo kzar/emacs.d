@@ -94,7 +94,7 @@
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
-(setq org-agenda-files '("~/Dropbox/org"))
+(setq org-agenda-files '("~/Davebox/org"))
 (setq org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE")
                           (sequence "WAITING(w@/!)" "CANCELLED(c@/!)"))
       org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))
