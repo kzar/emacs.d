@@ -172,7 +172,17 @@
                             :encryption tls)
                            ("irc.mozilla.org" :port 31337 :nick "kzar"
                             :password ,(format "%s/irc.mozilla.org:%s" znc-user znc-password)
+                            :encryption tls)
+                           ("team-irc.irccloud.com" :port 31337 :nick "kzar"
+                            :password ,(format "%s/team-irc.irccloud.com:%s" znc-user znc-password)
+                            :encryption tls)
+                           ("eyeo-betafish.irc.slack.com" :port 31337 :nick "kzar"
+                            :password ,(format "%s/eyeo-betafish.irc.slack.com:%s" znc-user znc-password)
+                            :encryption tls)
+                           ("deliberatetechnology.irc.slack.com" :port 31337 :nick "kzar"
+                            :password ,(format "%s/deliberatetechnology.irc.slack.com:%s" znc-user znc-password)
                             :encryption tls)))
+
 (add-hook 'rcirc-mode-hook (lambda () (flyspell-mode 1)))
 (setq rcirc-notify-timeout 0)
 (rcirc-notify-add-hooks)
