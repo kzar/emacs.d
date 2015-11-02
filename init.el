@@ -284,16 +284,6 @@
 ; CSS Mode
 (setq css-indent-offset 2)
 
-; Force Emacs to allow us to edit files that are mistakenly marked readonly
-; (Sometimes an issue when mounting over NFS)
-; http://kzar.co.uk/blog/2013/12/09/disable-emacs-read-only-warning-tramp-nfs/
-(add-hook 'find-file-hook
-          (lambda ()
-            (when (file-remote-p (buffer-file-name))
-              (set (make-local-variable 'inhibit-read-only) t)
-              (fset (make-local-variable 'file-writable-p) (lambda (filename) t))
-              (set (make-local-variable 'buffer-read-only) nil))))
-
 ; Load machine specific settings
 ; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/#comment-36295
 (let ((local-conf-name (format "~/.emacs.d/%s.el" system-name)))
