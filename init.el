@@ -139,9 +139,6 @@
 (add-to-list `exec-path "/opt/local/bin")
 
 ; Frame width
-(defun fix-frame-width ()
-  (interactive)
-  (set-frame-width (selected-frame 80)))
 (add-to-list 'default-frame-alist '(width . 80))
 
 ; Highlight tabs and trailing whitespace red
