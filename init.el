@@ -268,8 +268,7 @@
 (set-face-attribute 'web-mode-function-call-face nil :foreground "black")
 (add-hook 'web-mode-hook
           (lambda ()
-            (local-set-key (kbd "RET") 'newline-and-indent)
-            (whitespace-mode 0)))
+            (local-set-key (kbd "RET") 'newline-and-indent)))
 (setq web-mode-code-indent-offset 2)
 (setq web-mode-markup-indent-offset 2)
 
