@@ -182,7 +182,7 @@
                             :encryption tls)))
 
 (add-hook 'rcirc-mode-hook (lambda () (flyspell-mode 1)))
-(setq rcirc-notify-timeout 0)
+(setq rcirc-notify-timeout 5)
 (rcirc-notify-add-hooks)
 
 ;; Clojure
