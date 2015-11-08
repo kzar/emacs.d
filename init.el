@@ -138,9 +138,6 @@
 (add-to-list `exec-path "/usr/local/bin")
 (add-to-list `exec-path "/opt/local/bin")
 
-; Frame width
-(add-to-list 'default-frame-alist '(width . 80))
-
 ; Highlight tabs and trailing whitespace red
 (setq whitespace-style '(face trailing tabs lines-tail space-mark))
 (custom-set-faces
