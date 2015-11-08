@@ -167,21 +167,16 @@
 
 ; IRC
 (require 'tls)
-(setq rcirc-server-alist `(("irc.freenode.net" :port 31337 :nick "kzar"
-                            :password ,(format "%s/irc.freenode.net:%s" znc-user znc-password)
-                            :encryption tls)
-                           ("irc.mozilla.org" :port 31337 :nick "kzar"
-                            :password ,(format "%s/irc.mozilla.org:%s" znc-user znc-password)
-                            :encryption tls)
-                           ("team-irc.irccloud.com" :port 31337 :nick "kzar"
-                            :password ,(format "%s/team-irc.irccloud.com:%s" znc-user znc-password)
-                            :encryption tls)
-                           ("eyeo-betafish.irc.slack.com" :port 31337 :nick "kzar"
-                            :password ,(format "%s/eyeo-betafish.irc.slack.com:%s" znc-user znc-password)
-                            :encryption tls)
-                           ("deliberatetechnology.irc.slack.com" :port 31337 :nick "kzar"
-                            :password ,(format "%s/deliberatetechnology.irc.slack.com:%s" znc-user znc-password)
-                            :encryption tls)))
+(setq rcirc-server-alist
+      (mapcar (lambda (s)
+                `("dub.kzar.co.uk" :port 31337 :nick "kzar"
+                  :password ,(format "%s/%s:%s" znc-user s znc-password)
+                  :encryption tls :server-alias ,s))
+              '("irc.freenode.net"
+                "irc.mozilla.org"
+                "team-irc.irccloud.com"
+                "eyeo-betafish.irc.slack.com"
+                "deliberatetechnology.irc.slack.com")))
 
 (add-hook 'rcirc-mode-hook (lambda () (flyspell-mode 1)))
 (setq rcirc-notify-timeout 5)
