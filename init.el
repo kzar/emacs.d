@@ -3,6 +3,9 @@
 (load "~/.emacs.d/my-helpers.el")
 (load "~/.emacs.d/my-secrets.el")
 
+(setq custom-file "~/.emacs.d/my-custom.el")
+(load custom-file)
+
 (require 'cl)
 
 (require 'package)
@@ -138,10 +141,8 @@
 (add-to-list `exec-path "/usr/local/bin")
 (add-to-list `exec-path "/opt/local/bin")
 
-; Highlight tabs and trailing whitespace red
+; Highlight tabs and trailing whitespace (custom-set-faces defines colours)
 (setq whitespace-style '(face trailing tabs lines-tail space-mark))
-(custom-set-faces
- '(whitespace-tab ((t (:background "red")))))
 (global-whitespace-mode)
 ; Display zero-width unicode characters as standard spaces so we don't miss them
 (setq whitespace-display-mappings '((space-mark ?\x200B [? ])
