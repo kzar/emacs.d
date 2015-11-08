@@ -54,8 +54,8 @@
     (when (not (package-installed-p pkg))
       (package-install pkg))))
 
-(setq ;inhibit-splash-screen t
-      ;initial-scratch-message t
+(setq inhibit-splash-screen t
+      initial-scratch-message ";; Hello Dave\n"
       initial-major-mode 'org-mode)
 
 (prefer-coding-system 'utf-8)
