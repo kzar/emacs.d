@@ -288,4 +288,4 @@
 (let ((local-conf-name (format "~/.emacs.d/%s.el" system-name)))
   (cond ((file-exists-p local-conf-name)
          (load-file local-conf-name))
-        ((message "%s doesn’t exist or I’d load it." local-conf-name))))
+        ((message "%s doesn't exist or I'd load it." local-conf-name))))
