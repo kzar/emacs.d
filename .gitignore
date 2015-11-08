@@ -2,6 +2,7 @@
 auto-save-list/
 elpa/
 my-secrets.el
+ido.last
 my-secrets.el~
 tramp
 url/cookies

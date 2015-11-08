@@ -137,8 +137,9 @@
 (setq tramp-default-method "ssh")
 
 ; Setup buffer switching
-(iswitchb-mode)
-(setq iswitchb-default-method 'samewindow)
+(ido-mode)
+(setq ido-default-buffer-method  'selected-window
+      ido-default-file-method 'selected-window)
 
 ; Add to the executable path for executable-find
 (add-to-list `exec-path "/usr/local/bin")
