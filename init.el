@@ -60,6 +60,9 @@
 
 (prefer-coding-system 'utf-8)
 
+; Make some special Unicode symbols more readable
+(unicode-fonts-setup)
+
 (when window-system
   (menu-bar-mode -1)
   (tool-bar-mode -1))
@@ -149,8 +152,8 @@
                                     (space-mark ?\x200C [? ])
                                     (space-mark ?\x200D [? ])
                                     (space-mark ?\xFEFF [? ])))
-; Add zero-width unicode characters to tab regexp so we highlight them red too
-(setq whitespace-tab-regexp "\\([\t\u200B\u200C\u200D\uFEFF]\\)")
+; Add all unicode characters to tab regexp so we highlight them too
+(setq whitespace-tab-regexp "\\([\t[:nonascii:]]\\)")
 
 ; Fix flyspell
 (setq-default ispell-program-name "aspell")
