@@ -168,9 +168,8 @@
 ; Add all unicode characters to tab regexp so we highlight them too
 (setq whitespace-tab-regexp "\\([\t[:nonascii:]]\\)")
 
-; Fix flyspell
-(setq-default ispell-program-name "aspell")
-(setq ispell-program-name "aspell")
+; Flyspell
+(setq ispell-program-name "hunspell")
 (setq flyspell-issue-welcome-flag nil)
 (setq flyspell-default-dictionary "british"
       ispell-local-dictionary "british"
