@@ -141,6 +141,17 @@
 (setq ido-default-buffer-method  'selected-window
       ido-default-file-method 'selected-window)
 
+; Add a way to quickly kill (copy) the current ido completion
+(defun ido-kill-input ()
+  (interactive)
+  (let ((text (if ido-matches (ido-name (car ido-matches)) ido-text))
+        (dir ido-current-directory))
+    (kill-new (if dir (abbreviate-file-name (concat dir text)) text))))
+
+(add-hook 'ido-setup-hook
+          (lambda ()
+            (define-key ido-completion-map (kbd "C-w") 'ido-kill-input)))
+
 ; Add to the executable path for executable-find
 (add-to-list `exec-path "/usr/local/bin")
 (add-to-list `exec-path "/opt/local/bin")
