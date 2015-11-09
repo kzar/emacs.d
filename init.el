@@ -196,6 +196,18 @@
 (setq rcirc-notify-timeout 5)
 (rcirc-notify-add-hooks)
 
+; FIXME tidy this up
+(defun open-irc-window ()
+  (interactive)
+  (select-frame (new-frame))
+  (switch-to-buffer "#adblockplus@irc.mozilla.org")
+  (select-window (split-window-below))
+  (switch-to-buffer "#general@eyeo")
+  (select-window (split-window-right))
+  (switch-to-buffer "#general@deliberatetechnology")
+  (select-window (split-window-below))
+  (switch-to-buffer "#adblock@betafish"))
+
 ;; Clojure
 (require 'clojure-mode)
 (setq clojure-mode-use-backtracking-indent t)
