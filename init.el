@@ -176,17 +176,21 @@
       ispell-dictionary "british")
 
 ; IRC
+(setq irc-servers '((:server "irc.freenode.net")
+                    (:server "irc.mozilla.org")
+                    (:server "team-irc.irccloud.com" :alias "eyeo")
+                    (:server "eyeo-betafish.irc.slack.com" :alias "betafish")
+                    (:server "deliberatetechnology.irc.slack.com"
+                             :alias "deliberatetechnology")))
 (require 'tls)
 (setq rcirc-server-alist
-      (mapcar (lambda (s)
-                `("dub.kzar.co.uk" :port 31337 :nick "kzar"
-                  :password ,(format "%s/%s:%s" znc-user s znc-password)
-                  :encryption tls :server-alias ,s))
-              '("irc.freenode.net"
-                "irc.mozilla.org"
-                "team-irc.irccloud.com"
-                "eyeo-betafish.irc.slack.com"
-                "deliberatetechnology.irc.slack.com")))
+      (mapcar
+       (lambda (s)
+         (let ((server (plist-get s :server)))
+           `("dub.kzar.co.uk" :port 31337 :nick "kzar"
+             :password ,(format "%s/%s:%s" znc-user server znc-password)
+           :encryption tls :server-alias ,(or (plist-get s :alias) server))))
+       irc-servers))
 
 (add-hook 'rcirc-mode-hook (lambda () (flyspell-mode 1)))
 (setq rcirc-notify-timeout 5)
