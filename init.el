@@ -141,16 +141,29 @@
 (setq ido-default-buffer-method  'selected-window
       ido-default-file-method 'selected-window)
 
-; Add a way to quickly kill (copy) the current ido completion
-(defun ido-kill-input ()
-  (interactive)
+(defun ido-current-prediction ()
   (let ((text (if ido-matches (ido-name (car ido-matches)) ido-text))
         (dir ido-current-directory))
-    (kill-new (if dir (abbreviate-file-name (concat dir text)) text))))
+    (if dir (abbreviate-file-name (concat dir text)) text)))
+
+(defun ido-kill-prediction ()
+  (interactive)
+  (kill-new (ido-current-prediction)))
+
+(defun ido-magit-status ()
+  "Open magit status for current ido prediction"
+  (interactive)
+  (setq ido-exit 'fallback
+        fallback (lambda ()
+                   (interactive)
+                   (magit-status
+                    (file-name-directory (ido-current-prediction)))))
+  (exit-minibuffer))
 
 (add-hook 'ido-setup-hook
           (lambda ()
-            (define-key ido-completion-map (kbd "C-w") 'ido-kill-input)))
+            (define-key ido-completion-map (kbd "C-w") 'ido-kill-prediction)
+            (define-key ido-completion-map (kbd "C-c g") 'ido-magit-status)))
 
 ; Add to the executable path for executable-find
 (add-to-list `exec-path "/usr/local/bin")
