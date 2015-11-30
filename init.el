@@ -213,6 +213,7 @@
 (defun open-irc-window ()
   (interactive)
   (select-frame (new-frame))
+  (rcirc nil)
   (switch-to-buffer "#adblockplus@irc.mozilla.org")
   (select-window (split-window-below))
   (switch-to-buffer "#general@eyeo")
