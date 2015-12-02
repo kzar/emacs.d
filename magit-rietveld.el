@@ -30,9 +30,11 @@
 ;; convenient magit integration. Parts of this file are also derived from
 ;; the magit-gerrit code.
 
-;;; Code:
+;;; Usage:
 
-;; FIXME - Mark incompatible with magit-gerrit
+;; FIXME - write usage instructions!
+
+;;; Code:
 
 (require 'magit)
 
@@ -74,6 +76,7 @@ HTTP/1.1 200 OK\r
                            "Timed out waiting for Rietveld oauth2 access token")
                           (delete-process "oauth-redirect")))))
 ; FIXME - block waiting for this to finish, return the code or nil on timeout
+;       (Perhaps we should prompt for the auth code if the redirect flow fails?)
 
 (get-auth-token)
 
@@ -93,107 +96,190 @@ HTTP/1.1 200 OK\r
     (insert "--" boundary "--\r\n\r\n")
     (buffer-string)))
 
-; Create the code review
-; https://codereview.adblockplus.org/upload - form-data
-; repo_guid, subject, description, base_hashes, data (filename=data.diff)
-
-; base = current repository name / url
-
 (defun get-first-root-hash ()
  (with-temp-buffer
    (magit-git-insert "rev-list" "--parents" "HEAD")
    (and (search-backward-regexp "\\W\\([[:alnum:]]+\\)" nil t)
         (match-string 1))))
 
-(setq diff "\
-Index: include.preload.js
-diff --git a/include.preload.js b/include.preload.js
-index 3953332b0d54f35c8d1a7c2e185ee52dad2bbdfc..219401018781a6a774cbc61f388f738076dde874 100644
---- a/include.preload.js
-+++ b/include.preload.js
-@@ -300,7 +300,7 @@ function init(document)
-     shadow.appendChild(document.createElement(\"shadow\"));
-   }
- 
--  var addElemHideSelectors = function(selectors)
-+  function addElemHideSelectors(selectors)
-   {
-     if (selectors.length == 0)
-       return;
-")
-(setq base-hashes "11d0f6c0b12c4a09730bf84d36067057:include.preload.js|537b1465d3d2b680981d2da9d9332853:metadata.common")
-
-(let* ((url-request-method "POST")
-       (boundary "--M-A-G-I-T--R-I-E-T-V-E-L-D--")
-       (url-request-extra-headers
-        `(("Content-Type" . ,(concat "multipart/form-data; boundary=" boundary))
-          ("Authorization" . ,(concat "OAuth " auth-token))))
-       (subject (read-from-minibuffer "Subject: "))
-       (fields `(("repo_guid" . ,(get-first-root-hash))
-                 ("subject" . ,subject)
-                 ("description" . ,subject)
-                 ("base_hashes" . ,base-hashes)
-                 ("content_upload" . "1")
-                 ("base" . "Hello-world")))
-       (files `(("data" "data.diff" "text/x-diff" ,diff)))
-       (url-request-data (encode-multipart-form-data boundary fields files)))
-  (url-retrieve-synchronously (concat magit-rietveld-server "/upload")))
-
-(defun guess-rev ()
-  (let ((selected (magit-region-values))
-        (current (magit-section-value (magit-current-section)))
-        (branch (magit-get-current-branch)))
-    (if (eq (magit-section-type (magit-current-section)) 'commit)
-        (if (> (length selected) 1)
-            (concat (last selected) "~:" (first selected))
-          (concat current "~:" current))
-      ; FIXME - Check Branch / HEAD is after Master!
+(defun guess-revision-range ()
+  (let* ((selected (magit-region-values))
+         (branch (magit-get-current-branch))
+         (current (magit-current-section)))
+    (if (and current (eq (magit-section-type current) 'commit))
+        (let ((current-rev (magit-section-value current)))
+          (if (> (length selected) 1)
+              (concat (car (last selected)) ":" (first selected))
+            (concat current-rev "~:" current-rev)))
       (concat "master:" (or branch "HEAD")))))
 
-(defun generate-diff (rev-start rev-end)
+(defun revision-is-ancestor? (ancestor revision)
+  (let ((ancestor (magit-rev-parse ancestor)))
+    (with-temp-buffer
+      (magit-git-insert "rev-list" "--parents" revision)
+      (beginning-of-buffer)
+      (and (search-forward-regexp (rx-to-string ancestor) nil t)
+           (not (string= ancestor revision))))))
+
+(defun valid-revision-range? (range)
+  (let ((revisions (mapcar 'magit-rev-verify (split-string range ":"))))
+    (and (= (length revisions) 2) (every 'identity revisions)
+         (revision-is-ancestor? (car revisions) (cadr revisions)))))
+
+(defun prompt-for-revision-range ()
+  (let ((current (guess-revision-range)))
+    (while (not (valid-revision-range?
+                 (setq current (read-from-minibuffer "Revision: " current)))))
+    current))
+
+(defun prompt-for-issue-number (&rest args)
+  (let ((current ""))
+    (while (not (string-match (rx bos (+ digit) eos) current))
+      (setq current (read-from-minibuffer "Issue number: ")))
+    current))
+
+(defun strip-null-hash (hash)
+  (let ((null-hash "0000000000000000000000000000000000000000"))
+    (and (not (string= hash null-hash)) hash)))
+
+; FIXME - Is there no way to avoid all this global state? :(
+(setq filenames ())
+(setq statuses (make-hash-table :test 'equal))
+(setq hashes (make-hash-table :test 'equal))
+(setq renames (make-hash-table :test 'equal))
+(setq base-contents (make-hash-table :test 'equal))
+(setq new-contents (make-hash-table :test 'equal))
+(setq binary-ps (make-hash-table :test 'equal))
+
+(defun reset-diff ()
+  (setq filenames ())
+  (mapc 'clrhash `(,statuses ,hashes ,renames ,base-contents
+                   ,new-contents ,binary-ps)))
+
+(defun is-image? (filename)
+  (and (string-match
+        (rx "." (or "bmp" "gif" "ief" "jpe" "jpeg" "jpg" "pbm" "pgm" "png" "pnm"
+                    "ppm" "ras" "rgb" "tif" "tiff" "xbm" "xpm" "xwd" "jpg" "pct"
+                    "pic" "pict")
+            eos)
+        filename)
+       t))
+
+(defun is-binary? (contents)
+  (and (search "\0" contents) t))
+
+(defun get-file-content (hash)
   (with-temp-buffer
+    (magit-git-insert "git" "show" hash)
+    (buffer-string)))
+
+(defun diff (rev-start rev-end)
+  (reset-diff)
+  (with-temp-buffer
+    ; Insert the Git diff
     (let ((args '("diff" "--no-color" "--no-ext-diff" "--full-index"
                   "--ignore-submodules" "--src-prefix=a/" "--dst-prefix=b/")))
       (apply 'magit-git-insert (append args '("--no-renames" "--diff-filter=D")
                                        `(,rev-start ,rev-end)))
       (apply 'magit-git-insert (append args '("--diff-filter=AMCRT" "-M50%")
-                                       `(,rev-start ,rev-end)))
-      (beginning-of-buffer)
-      ; TODO - take note of index x..y hashes for later?
-      (while (search-forward-regexp "diff --git a/\\(.*\\) b/\\(.*\\)$" nil t)
-        (let ((filename (match-string 2)))
+                                       `(,rev-start ,rev-end))))
+    ; Add Index: ... lines
+    (beginning-of-buffer)
+    (while (search-forward-regexp "^diff --git a/\\(.*\\) b/\\(.*\\)$" nil t)
+      (let ((filename-before (match-string 1))
+            (filename (match-string 2)))
+        (push filename filenames)
+        ; Keep track of weather or not this file has been renamed
+        (let ((renamed (not (string= filename-before filename))))
+          (when renamed
+            (puthash filename filename-before renames))
           (move-beginning-of-line 1)
           (insert (concat "Index: ") filename "\n")
-          (move-end-of-line 2)))
-      (buffer-string))))
+          (move-end-of-line 2)
+          ; Keep track of before & after hashes + statuses for this file
+          (search-forward-regexp "^index \\(\\w+\\)\\.\\.\\(\\w+\\)$")
+          (let ((hash-before (match-string 1))
+                (hash-after (match-string 2)))
+            (puthash filename `(,(strip-null-hash hash-before) .
+                                ,(strip-null-hash hash-after))
+                     hashes)
+            (puthash filename (cond (renamed "A +")
+                                    ((not hash-before) "A")
+                                    ((not hash-after) "D")
+                                    (t "M"))
+                   statuses)
+            ; Keep track of base contents for the file
+            (let* ((base (cond (renamed (get-file-content
+                                         (concat "HEAD:" filename)))
+                               ((not hash-before) "")
+                               (t (get-file-content filename))))
+                   (base-binary (or (is-image? filename)
+                                    (is-binary? base))))
+              (puthash filename base base-contents)
+              ; Keep track of new content if required
+              (when hash-after
+                (let* ((new (get-file-content hash-after))
+                       (binary-p (or base-binary (is-binary? new))))
+                  (when binary-p
+                    (puthash filename t binary-ps)
+                    (puthash filename new new-contents)))))))))
+    ; Finally return the diff itself!
+    (buffer-string)))
+; FIXME - Test all this: renames, permission changes, deletions, additions
+;                        modifications, binary files, image files, svg files
+;                        huge patch sets
+; FIXME - Port the logic to split up huge patch sets from upload.py
 
-(generate-diff "HEAD~" "HEAD")
+(defun base-hashes ()
+  (let ((hashes ()))
+    (dolist (filename filenames)
+      (let ((contents (gethash filename base-contents)))
+        (when contents
+          (push (concat filename ":" (md5 contents)) hashes))))
+    (string-join hashes "|")))
+
+(defun parse-args (args)
+  (mapcar (lambda (arg)
+            (let ((parts (split-string arg "=" nil (rx bos "--"))))
+              `(,(car parts) . ,(cadr parts))))
+          args))
 
 (defun magit-rietveld-submit-review ()
   (interactive)
-  (let ((rev (read-from-minibuffer "Revision: " (guess-rev)))
-        (subject (read-from-minibuffer "Subject: ")))
-    ; FIXME - Don't submit --rev argument if falsey, submit other arguments
-    (upload.py "--rev" rev)))
-
-;(message "hello")
-
+  (let* ((args (parse-args (magit-rietveld-arguments)))
+         (rev (prompt-for-revision-range))
+         (subject (read-from-minibuffer "Subject: "))
+         (diff-output (apply 'diff (split-string rev ":")))
+         ; Set up the web request
+         (url-request-method "POST")
+         (boundary "--M-A-G-I-T--R-I-E-T-V-E-L-D--")
+         (url-request-extra-headers
+          `(("Content-Type" . ,(concat "multipart/form-data; boundary="
+                                       boundary))
+            ("Authorization" . ,(concat "OAuth " auth-token))))
+         (fields `(("repo_guid" . ,(get-first-root-hash))
+                   ("subject" . ,subject)
+                   ("description" . ,subject)
+                   ("base_hashes" . ,(base-hashes))
+                   ("content_upload" . "1")
+                   ("base" . "FIXME: reponame @ base-rev")))
+         (files `(("data" "data.diff" "text/x-diff" ,diff-output))))
+    (when-let ((issue (assoc "issue" args)))
+      (push issue fields))
+    (let ((url-request-data (encode-multipart-form-data boundary fields files)))
+      (url-retrieve-synchronously (concat magit-rietveld-server "/upload")))))
 ; FIXME - Make use of (magit-diff "rev..rev") to display a diff before
-; submitting?
-
-; If (eq (magit-section-type (magit-current-section)) 'commit)
-;  If (magit-region-values) - Take the first and last as the range
-;  Else (magit-section-value (magit-current-section))
-; Else "HEAD
-(magit-rev-parse (magit-rev-parse "HEAD"))
-(magit-region-sections)
-; (magit-region-values)
+;         submitting?
 
 (magit-define-popup magit-rietveld-popup
   "Popup console for magit rietveld commands."
   'magit-rietveld
-  :actions '((?R "Submit code review" magit-rietveld-submit-review))
-  :options '())
+  :actions '((?r "Submit code review" magit-rietveld-submit-review))
+  :options '((?i "Issue number" "--issue=" prompt-for-issue-number)))
+; FIXME - Add options for some of upload.py features:
+;         specifying issue number, private, ...
 
-(magit-define-popup-action 'magit-dispatch-popup ?R "Rietveld"
+(magit-define-popup-action 'magit-dispatch-popup [?\C-c ?r] "Rietveld"
   'magit-rietveld-popup)
+
+(define-key magit-mode-map [?\C-c ?r] 'magit-rietveld-popup)
