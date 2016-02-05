@@ -138,8 +138,11 @@
 
 ; Setup buffer switching
 (ido-mode)
-(setq ido-default-buffer-method  'selected-window
-      ido-default-file-method 'selected-window)
+(setq ido-create-new-buffer 'always
+      ido-default-buffer-method  'selected-window
+      ido-default-file-method 'selected-window
+      ido-enable-flex-matching t)
+(add-to-list `ido-ignore-files "~$")
 
 (defun ido-current-prediction ()
   (let ((text (if ido-matches (ido-name (car ido-matches)) ido-text))
