@@ -101,10 +101,12 @@
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
 (setq org-agenda-files '("~/Davebox/org"))
-(setq org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE")
-                          (sequence "WAITING(w@/!)" "CANCELLED(c@/!)"))
+(setq org-todo-keywords '((sequence "TODO" "INPROGRESS" "CODEREVIEW" "BLOCKED"
+                                    "DONE")
+                          (sequence "CANCELLED(c@/!)"))
       org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))
-                               ("WAITING" . (:foreground "dark orange" :weight bold))
+                               ("CODEREVIEW" . (:foreground "dark orange" :weight bold))
+                                ("BLOCKED" . (:foreground "dark red" :weight bold))
                                ("CANCELLED" (:foreground "green" :weight bold))))
 (add-hook 'org-mode-hook (lambda () (flyspell-mode 1)))
 (setq org-todo-state-tags-triggers
