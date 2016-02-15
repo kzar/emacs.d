@@ -317,6 +317,40 @@
 ; CSS Mode
 (setq css-indent-offset 2)
 
+; Manually indent a region of code, taking care of trailing whitespace
+(defun indent-rectangle ()
+  (interactive)
+  (when (region-active-p)
+    (save-excursion
+      (let ((start (min (region-beginning) (region-end)))
+            (end (max (region-beginning) (region-end)))
+            (region-indent nil)
+            (first-line-start 0)
+            (last-line-start 0)
+            (last-line-end 0))
+        ; Record the start / end positions
+        (goto-char end)
+        (setq last-line-end (line-end-position))
+        (goto-char start)
+        (setq first-line-start (line-beginning-position))
+        ; Figure out the base indentation for the selected region
+        (while (< (point) last-line-end)
+          (unless (= (line-end-position) (line-beginning-position))
+            (setq region-indent (min (or region-indent (current-indentation))
+                                     (current-indentation)))
+            (setq last-line-start (line-beginning-position)))
+          (forward-line))
+        ; Use rectangle mark mode to select the base indentation and
+        ; prompt the user to alter that region
+        (push-mark first-line-start)
+        (goto-char (+ last-line-start region-indent))
+        (call-interactively 'string-rectangle)
+        ; Clear any trailing whitespace
+        (delete-trailing-whitespace (region-beginning) (region-end)))
+      (pop-mark))))
+
+(global-set-key (kbd "C-c SPC") 'indent-rectangle)
+
 ; Load machine specific settings
 ; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/#comment-36295
 (let ((local-conf-name (format "~/.emacs.d/%s.el" system-name)))
