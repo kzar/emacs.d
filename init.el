@@ -16,7 +16,8 @@
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
-(defvar kzar/packages '(cider
+(defvar kzar/packages '(ace-window
+                        cider
                         clojure-mode
                         coffee-mode
                         dash
@@ -169,6 +170,9 @@
           (lambda ()
             (define-key ido-completion-map (kbd "C-w") 'ido-kill-prediction)
             (define-key ido-completion-map (kbd "C-c g") 'ido-magit-status)))
+
+; Convenient window switching
+(global-set-key (kbd "C-c w") 'ace-window)
 
 ; Add to the executable path for executable-find
 (add-to-list `exec-path "/usr/local/bin")
