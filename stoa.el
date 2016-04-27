@@ -16,3 +16,6 @@
 ; Configure outgoing mail
 (setq send-mail-function 'sendmail-send-it)
 (setq sendmail-program "/usr/bin/msmtp")
+
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "google-chrome")
