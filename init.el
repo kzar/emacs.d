@@ -230,7 +230,7 @@
   (select-window (split-window-right))
   (switch-to-buffer "#general@deliberatetechnology")
   (select-window (split-window-below))
-  (switch-to-buffer "#adblock@betafish"))
+  (switch-to-buffer "#easypasswords@irc.mozilla.org"))
 
 ;; Clojure
 (require 'clojure-mode)
