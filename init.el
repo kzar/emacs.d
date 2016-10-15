@@ -24,11 +24,13 @@
                         epl
                         font-utils
                         gist
+                        gnus-alias
                         ir-black-theme
                         js2-mode
                         list-utils
                         magit
                         markdown-mode
+                        notmuch
                         paredit
                         pcache
                         persistent-soft
@@ -54,6 +56,8 @@
   (dolist (pkg kzar/packages)
     (when (not (package-installed-p pkg))
       (package-install pkg))))
+
+(load "~/.emacs.d/lisp/org-notmuch.el")
 
 (setq inhibit-splash-screen t
       initial-scratch-message ";; Hello Dave\n"
@@ -134,7 +138,74 @@
   (lambda ()
     (require 'ox-md nil t)
     (require 'ox-odt nil t)
-    (require 'ox-publish nil t)))
+    (require 'ox-publish nil t)
+    (require 'org-notmuch)))
+
+; https://notmuchmail.org/emacstips/#index25h2
+(defun my-notmuch-show-view-as-patch ()
+  "View the the current message as a patch."
+  (interactive)
+  (let* ((id (notmuch-show-get-message-id))
+         (msg (notmuch-show-get-message-properties))
+         (part (notmuch-show-get-part-properties))
+         (subject (concat "Subject: " (notmuch-show-get-subject) "\n"))
+         (diff-default-read-only t)
+         (buf (get-buffer-create (concat "*notmuch-patch-" id "*")))
+         (map (make-sparse-keymap)))
+    (define-key map "q" 'notmuch-bury-or-kill-this-buffer)
+    (switch-to-buffer buf)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert subject)
+      (insert (notmuch-get-bodypart-text msg part nil)))
+    (set-buffer-modified-p nil)
+    (diff-mode)
+    (lexical-let ((new-ro-bind (cons 'buffer-read-only map)))
+                 (add-to-list 'minor-mode-overriding-map-alist new-ro-bind))
+    (goto-char (point-min))))
+
+; Notmuch mail
+(define-key global-map "\C-cm" 'notmuch)
+(setq notmuch-search-oldest-first nil)
+(setq notmuch-fcc-dirs "Sent")
+(setq notmuch-crypto-process-mime t)
+(add-hook 'message-setup-hook 'mml-secure-message-sign-pgpmime)
+(eval-after-load "notmuch"
+  (lambda ()
+    (define-key notmuch-common-keymap "g" 'notmuch-refresh-this-buffer)
+    (define-key 'notmuch-show-part-map "d" 'my-notmuch-show-view-as-patch)))
+
+; gnus-alias
+(autoload 'gnus-alias-determine-identity "gnus-alias" "" t)
+(add-hook 'message-setup-hook 'gnus-alias-determine-identity)
+(setq gnus-alias-identity-alist
+      '(("kzar"
+         nil ;; Does not refer to any other identity
+         "Dave Barker <kzar@kzar.co.uk>"
+         nil ;; No organization header
+         nil ;; No extra headers
+         nil ;; No extra body text
+         nil)
+        ("eyeo"
+         nil
+         "Dave Barker <dave@adblockplus.org>"
+         "Eyeo GmbH."
+         nil
+         nil
+         "~/.signature-eyeo")))
+
+;; Use "home" identity by default
+(setq gnus-alias-default-identity "kzar")
+;; Define rules to match work identity
+(setq gnus-alias-identity-rules
+      '(("eyeo" ("any" "dave@adblockplus.org" both) "eyeo")))
+;; Determine identity when message-mode loads
+(add-hook 'message-setup-hook 'gnus-alias-determine-identity)
+;; Add C-c f binding for switching identity
+(add-hook 'message-load-hook
+          (lambda ()
+            (define-key message-mode-map (kbd "C-c f")
+              'gnus-alias-select-identity)))
 
 ; Tramp
 (setq tramp-default-method "ssh")
