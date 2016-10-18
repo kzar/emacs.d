@@ -37,7 +37,6 @@
                         php-mode
                         pkg-info
                         puppet-mode
-                        rcirc-notify
                         rvm
                         ucs-utils
                         unicode-fonts
@@ -286,22 +285,13 @@
            :encryption tls :server-alias ,(or (plist-get s :alias) server))))
        irc-servers))
 
-(add-hook 'rcirc-mode-hook (lambda () (flyspell-mode 1)))
-(setq rcirc-notify-timeout 5)
-(rcirc-notify-add-hooks)
-
-; FIXME tidy this up
-(defun open-irc-window ()
-  (interactive)
-  (select-frame (new-frame))
-  (rcirc nil)
-  (switch-to-buffer "#adblockplus@irc.mozilla.org")
-  (select-window (split-window-below))
-  (switch-to-buffer "#general@eyeo")
-  (select-window (split-window-right))
-  (switch-to-buffer "#general@deliberatetechnology")
-  (select-window (split-window-below))
-  (switch-to-buffer "#easypasswords@irc.mozilla.org"))
+(rcirc-track-minor-mode 1)
+(add-hook 'rcirc-mode-hook
+          (lambda ()
+            (flyspell-mode 1)
+            (when (or (string-match "^\\*" (buffer-name))
+                      (string-match "#.+\\@irc\\.\\(freenode\\|oftc\\)\\.net" (buffer-name)))
+              (setq rcirc-ignore-buffer-activity-flag t))))
 
 ;; Clojure
 (require 'clojure-mode)
