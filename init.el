@@ -258,6 +258,17 @@
 ; Add all unicode characters to tab regexp so we highlight them too
 (setq whitespace-tab-regexp "\\([\t[:nonascii:]]\\)")
 
+(setq rcirc-dim-nicks '("abpbot"))
+(setq rcirc-bright-nicks '("palant" "fhd" "snoack"))
+
+; https://www.emacswiki.org/emacs/rcircCloudToButt
+(defun kzar/rcirc-tweak-messages (sender response)
+  (while (re-search-forward "feel free to" nil t)
+    (replace-match "please"))
+  (while (re-search-forward "ASAP" nil t)
+    (replace-match "at some point" t)))
+(add-hook 'rcirc-markup-text-functions 'kzar/rcirc-tweak-messages)
+
 ; Flyspell
 (setq ispell-program-name "hunspell")
 (setq flyspell-issue-welcome-flag nil)
