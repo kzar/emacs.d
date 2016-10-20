@@ -1,3 +1,4 @@
+(load "/usr/share/emacs-snapshot/site-lisp/debian-startup.el")
 (setq user-full-name "Dave Barker")
 (setq user-mail-address "kzar@kzar.co.uk")
 (load "~/.emacs.d/my-helpers.el")
@@ -30,7 +31,6 @@
                         list-utils
                         magit
                         markdown-mode
-                        notmuch
                         paredit
                         pcache
                         persistent-soft
@@ -55,8 +55,6 @@
   (dolist (pkg kzar/packages)
     (when (not (package-installed-p pkg))
       (package-install pkg))))
-
-(load "~/.emacs.d/lisp/org-notmuch.el")
 
 (setq inhibit-splash-screen t
       initial-scratch-message ";; Hello Dave\n"
@@ -138,41 +136,40 @@
     (require 'ox-md nil t)
     (require 'ox-odt nil t)
     (require 'ox-publish nil t)
-    (require 'org-notmuch)))
+    (require 'org-mu4e)))
 
-; https://notmuchmail.org/emacstips/#index25h2
-(defun my-notmuch-show-view-as-patch ()
-  "View the the current message as a patch."
-  (interactive)
-  (let* ((id (notmuch-show-get-message-id))
-         (msg (notmuch-show-get-message-properties))
-         (part (notmuch-show-get-part-properties))
-         (subject (concat "Subject: " (notmuch-show-get-subject) "\n"))
-         (diff-default-read-only t)
-         (buf (get-buffer-create (concat "*notmuch-patch-" id "*")))
-         (map (make-sparse-keymap)))
-    (define-key map "q" 'notmuch-bury-or-kill-this-buffer)
-    (switch-to-buffer buf)
-    (let ((inhibit-read-only t))
-      (erase-buffer)
-      (insert subject)
-      (insert (notmuch-get-bodypart-text msg part nil)))
-    (set-buffer-modified-p nil)
-    (diff-mode)
-    (lexical-let ((new-ro-bind (cons 'buffer-read-only map)))
-                 (add-to-list 'minor-mode-overriding-map-alist new-ro-bind))
-    (goto-char (point-min))))
+; mu4e email setup
+(require 'mu4e)
+(require 'mu4e-contrib)
+(define-key global-map "\C-cm" 'mu4e)
+(define-key global-map "\C-xm" 'mu4e-compose-new)
+(setq
+  mu4e-maildir       "~/Davebox/home/Maildir"
+  mu4e-sent-folder   "/Sent"
+  mu4e-drafts-folder "/Drafts"
+  mu4e-trash-folder  "/Trash"
+  mu4e-refile-folder "/Archive"
 
-; Notmuch mail
-(define-key global-map "\C-cm" 'notmuch)
-(setq notmuch-search-oldest-first nil)
-(setq notmuch-fcc-dirs "Sent")
-(setq notmuch-crypto-process-mime t)
-(add-hook 'message-setup-hook 'mml-secure-message-sign-pgpmime)
-(eval-after-load "notmuch"
-  (lambda ()
-    (define-key notmuch-common-keymap "g" 'notmuch-refresh-this-buffer)
-    (define-key 'notmuch-show-part-map "d" 'my-notmuch-show-view-as-patch)))
+  mu4e-get-mail-command "offlineimap"
+  mu4e-update-interval 300
+
+  mu4e-headers-time-format "%l:%M %p"
+  mu4e-headers-date-format "%d %b %Y"
+
+  mu4e-headers-fields '((:human-date . 12) (:flags . 6)
+                        (:from-or-to . 22) (:subject))
+  mu4e-headers-from-or-to-prefix '("" . "To: ")
+  mu4e-user-mail-address-list '("kzar@kzar.co.uk" "dave@inadub.co.uk"
+                                "dave@adblockplus.org")
+
+  mu4e-view-html-plaintext-ratio-heuristic 10
+  mu4e-html2text-command 'mu4e-shr2text
+
+  mu4e-bookmarks '(("maildir:/INBOX OR maildir:/INBOX.Eyeo" "Inbox" ?i)))
+(custom-set-faces
+ '(mu4e-ok-face ((t (:inherit font-lock-comment-face
+                     :background "green" :foreground "black"
+                     :slant normal :weight bold)))))
 
 ; gnus-alias
 (autoload 'gnus-alias-determine-identity "gnus-alias" "" t)
@@ -198,13 +195,14 @@
 ;; Define rules to match work identity
 (setq gnus-alias-identity-rules
       '(("eyeo" ("any" "dave@adblockplus.org" both) "eyeo")))
-;; Determine identity when message-mode loads
-(add-hook 'message-setup-hook 'gnus-alias-determine-identity)
 ;; Add C-c f binding for switching identity
-(add-hook 'message-load-hook
+(add-hook 'mu4e-compose-mode-hook
           (lambda ()
+            (gnus-alias-determine-identity)
             (define-key message-mode-map (kbd "C-c f")
-              'gnus-alias-select-identity)))
+              'gnus-alias-select-identity)
+            (mml-secure-message-sign-pgpmime)
+            (flyspell-mode)))
 
 ; Tramp
 (setq tramp-default-method "ssh")
