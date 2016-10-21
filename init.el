@@ -7,6 +7,8 @@
 (setq custom-file "~/.emacs.d/my-custom.el")
 (load custom-file)
 
+(server-start)
+
 (require 'cl)
 
 (require 'package)
