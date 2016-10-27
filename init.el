@@ -39,6 +39,7 @@
                         php-mode
                         pkg-info
                         puppet-mode
+                        notmuch
                         rvm
                         ucs-utils
                         unicode-fonts
@@ -57,6 +58,8 @@
   (dolist (pkg kzar/packages)
     (when (not (package-installed-p pkg))
       (package-install pkg))))
+
+(load "~/.emacs.d/lisp/org-notmuch.el")
 
 (setq inhibit-splash-screen t
       initial-scratch-message ";; Hello Dave\n"
@@ -138,7 +141,7 @@
     (require 'ox-md nil t)
     (require 'ox-odt nil t)
     (require 'ox-publish nil t)
-    (require 'org-mu4e)))
+    (require 'org-notmuch)))
 
 ; IRC
 (setq irc-servers '((:server "irc.freenode.net")
@@ -165,114 +168,6 @@
             (when (or (string-match "^\\*" (buffer-name))
                       (string-match "#.+\\@irc\\.\\(freenode\\|oftc\\)\\.net" (buffer-name)))
               (setq rcirc-ignore-buffer-activity-flag t))))
-
-; mu4e email setup
-(require 'mu4e)
-(require 'mu4e-contrib)
-(define-key global-map "\C-cm" 'mu4e)
-(define-key global-map "\C-xm" 'mu4e-compose-new)
-(setq
-  mu4e-maildir       "~/Davebox/home/Maildir"
-  mu4e-sent-folder   "/Sent"
-  mu4e-drafts-folder "/Drafts"
-  mu4e-trash-folder  "/Trash"
-  mu4e-refile-folder "/Archive"
-
-  mu4e-get-mail-command "offlineimap"
-  mu4e-update-interval 60
-  mu4e-hide-index-messages t
-
-  mu4e-headers-time-format "%l:%M %p"
-  mu4e-headers-date-format "%d %b %Y"
-
-  mu4e-headers-fields '((:human-date . 12) (:flags . 6)
-                        (:from-or-to . 22) (:subject))
-  mu4e-view-show-addresses t
-  mu4e-headers-from-or-to-prefix '("" . "To: ")
-  mu4e-user-mail-address-list '("kzar@kzar.co.uk" "dave@inadub.co.uk"
-                                "dave@adblockplus.org" "d.barker@eyeo.com")
-
-  mu4e-view-html-plaintext-ratio-heuristic 10
-  mu4e-html2text-command 'mu4e-shr2text
-  mu4e-view-show-images t
-
-  mu4e-bookmarks '(("maildir:/INBOX OR maildir:/INBOX.Eyeo" "Inbox" ?i)
-                   ("flag:flagged" "Flagged messages" ?f)
-                   ("maildir:/SENT AND date:7d..now" "Sent in the last 7 days" ?s)))
-
-(when (fboundp 'imagemagick-register-types)
-  (imagemagick-register-types))
-
-(custom-set-faces
- '(mu4e-ok-face ((t (:inherit font-lock-comment-face
-                     :background "green" :foreground "black"
-                     :slant normal :weight bold)))))
-
-; Simple mu4e modeline alerts, mu4e-alert didn't work too well for me. (Some
-; code pinched from there!)
-(setq kzar/mu4e-activity-string "")
-(add-to-list 'global-mode-string '((:eval kzar/mu4e-activity-string)) t)
-(defun kzar/get-mu4e-incoming-count ()
-  (let* ((query "flag:unread AND \(maildir:/INBOX or maildir:/INBOX.Eyeo\)")
-         (command (concat mu4e-mu-binary " msgs-count --query='" query "'")))
-    (string-trim (shell-command-to-string command))))
-(defun kzar/format-mu4e-mode-string (count)
-  (concat " 📧[" (if (string= count "0") "" count) "]"))
-(defun kzar/update-mu4e-activity-string (&rest args)
-  (setq kzar/mu4e-activity-string
-        (kzar/format-mu4e-mode-string (kzar/get-mu4e-incoming-count)))
-  (force-mode-line-update))
-(add-hook 'mu4e-main-mode-hook #'kzar/update-mu4e-activity-string)
-(add-hook 'mu4e-view-mode-hook #'kzar/update-mu4e-activity-string)
-(add-hook 'mu4e-index-updated-hook #'kzar/update-mu4e-activity-string)
-
-(defun kzar/mu4e-patch-view (msg)
-  (let* ((body (mu4e-message-field msg :body-txt))
-         (id (mu4e-message-field msg :message-id))
-         (subject (mu4e-message-field msg :subject))
-         (buffer (get-buffer-create (concat "*mu4e-patch-" id "*"))))
-    (switch-to-buffer buffer)
-    (erase-buffer)
-    (insert subject)
-    (insert "\n\n")
-    (insert body))
-    (set-buffer-modified-p nil)
-    (diff-mode)
-    (read-only-mode)
-    (goto-char (point-min)))
-(add-to-list 'mu4e-view-actions '("patch view" . kzar/mu4e-patch-view))
-
-; gnus-alias
-(autoload 'gnus-alias-determine-identity "gnus-alias" "" t)
-(setq gnus-alias-identity-alist
-      '(("kzar"
-         nil ;; Does not refer to any other identity
-         "Dave Barker <kzar@kzar.co.uk>"
-         nil ;; No organization header
-         nil ;; No extra headers
-         nil ;; No extra body text
-         nil)
-        ("eyeo"
-         nil
-         "Dave Barker <dave@adblockplus.org>"
-         "Eyeo GmbH."
-         nil
-         nil
-         "~/.signature-eyeo")))
-
-;; Use "home" identity by default
-(setq gnus-alias-default-identity "kzar")
-;; Define rules to match work identity
-(setq gnus-alias-identity-rules
-      '(("@adblockplus.org" ("any" "@adblockplus\\.org" both) "eyeo")
-        ("@eyeo.com" ("any" "@eyeo\\.com" both) "eyeo")))
-(add-hook 'mu4e-compose-mode-hook
-          (lambda ()
-            (gnus-alias-determine-identity)
-            (define-key message-mode-map (kbd "C-c f")
-              'gnus-alias-select-identity)
-            (mml-secure-message-sign-pgpmime)
-            (flyspell-mode)))
 
 ; Tramp
 (setq tramp-default-method "ssh")
