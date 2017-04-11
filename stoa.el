@@ -14,7 +14,7 @@
 (define-key global-map "\C-cm" 'notmuch)
 (setq message-kill-buffer-on-exit t
       notmuch-search-oldest-first t
-      notmuch-fcc-dirs "Sent"
+      notmuch-fcc-dirs "Sent +sent -inbox"
       notmuch-crypto-process-mime t
       notmuch-saved-searches
       '((:name "inbox" :query "tag:inbox")
