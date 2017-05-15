@@ -7,8 +7,6 @@
 (setq custom-file "~/.emacs.d/my-custom.el")
 (load custom-file)
 
-(server-start)
-
 (require 'cl)
 
 (require 'package)
@@ -70,9 +68,8 @@
 ; Make some special Unicode symbols more readable
 (unicode-fonts-setup)
 
-(when window-system
-  (menu-bar-mode -1)
-  (tool-bar-mode -1))
+(menu-bar-mode -1)
+(tool-bar-mode -1)
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
