@@ -68,8 +68,11 @@
 ; Make some special Unicode symbols more readable
 (unicode-fonts-setup)
 
-(menu-bar-mode -1)
-(tool-bar-mode -1)
+; Hide frame toolbars
+(defun kzar/hide-frame-toolbars (_)
+  (menu-bar-mode -1)
+  (tool-bar-mode -1))
+(add-to-list 'after-make-frame-functions #'kzar/hide-frame-toolbars)
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
