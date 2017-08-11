@@ -104,8 +104,8 @@
 
 ; org-mode
 (add-to-list `auto-mode-alist `("\\.org$" . org-mode))
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
+(define-key global-map (kbd "C-c l") 'org-store-link)
+(define-key global-map (kbd "C-c a") 'org-agenda)
 (setq org-log-done t)
 (setq org-agenda-files '("~/Davebox/org"))
 (setq org-todo-keywords '((sequence "TODO" "INPROGRESS" "CODEREVIEW" "BLOCKED"
@@ -180,29 +180,9 @@
       ido-enable-flex-matching t)
 (add-to-list `ido-ignore-files "~$")
 
-(defun ido-current-prediction ()
-  (let ((text (if ido-matches (ido-name (car ido-matches)) ido-text))
-        (dir ido-current-directory))
-    (if dir (abbreviate-file-name (concat dir text)) text)))
-
-(defun ido-kill-prediction ()
-  (interactive)
-  (kill-new (ido-current-prediction)))
-
-(defun ido-magit-status ()
-  "Open magit status for current ido prediction"
-  (interactive)
-  (setq ido-exit 'fallback
-        fallback (lambda ()
-                   (interactive)
-                   (magit-status
-                    (file-name-directory (ido-current-prediction)))))
-  (exit-minibuffer))
-
 (add-hook 'ido-setup-hook
           (lambda ()
-            (define-key ido-completion-map (kbd "C-w") 'ido-kill-prediction)
-            (define-key ido-completion-map (kbd "C-c g") 'ido-magit-status)))
+            (define-key ido-completion-map (kbd "C-c g") 'ido-enter-magit-status)))
 
 ; Convenient window switching
 (global-set-key (kbd "C-c w") 'ace-window)
