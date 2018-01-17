@@ -166,7 +166,9 @@
           (lambda ()
             (flyspell-mode 1)
             (when (or (string-match "^\\*" (buffer-name))
-                      (string-match "#.+\\@irc\\.\\(freenode\\|oftc\\)\\.net" (buffer-name)))
+                      (string-match "^#[^@]+\\@irc\\.\\(freenode\\|oftc\\)\\.net$" (buffer-name))
+                      (and (string-match "^#[^@]+\\@eyeo$" (buffer-name))
+                           (not (string= "#general@eyeo" (buffer-name)))))
               (setq rcirc-ignore-buffer-activity-flag t))))
 
 ; Tramp
