@@ -195,7 +195,7 @@
 
 ; Highlight tabs and trailing whitespace (custom-set-faces defines colours)
 (setq whitespace-style '(face trailing tabs lines-tail space-mark))
-(setq whitespace-global-modes '(not rcirc-mode))
+(setq whitespace-global-modes '(not rcirc-mode magit-mode))
 (global-whitespace-mode)
 ; Display zero-width unicode characters as standard spaces so we don't miss them
 (setq whitespace-display-mappings '((space-mark ?\x200B [? ])
