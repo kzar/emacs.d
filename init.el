@@ -1,4 +1,4 @@
-(load "/usr/share/emacs-snapshot/site-lisp/debian-startup.el")
+(load "/usr/share/emacs/site-lisp/debian-startup.el")
 (setq user-full-name "Dave Barker")
 (setq user-mail-address "kzar@kzar.co.uk")
 (load "~/.emacs.d/my-helpers.el")
