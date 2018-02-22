@@ -10,4 +10,10 @@
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "google-chrome")
 
-(load "~/code/davemail/davemail.el")
+; Hide frame toolbars
+(defun kzar/hide-frame-toolbars (_)
+  (menu-bar-mode -1)
+  (tool-bar-mode -1))
+(add-to-list 'after-make-frame-functions #'kzar/hide-frame-toolbars)
+
+(load "~/work/personal/davemail/davemail.el")
