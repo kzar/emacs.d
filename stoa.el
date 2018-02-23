@@ -13,7 +13,11 @@
 ; Hide frame toolbars
 (defun kzar/hide-frame-toolbars (_)
   (menu-bar-mode -1)
-  (tool-bar-mode -1))
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1))
+(kzar/hide-frame-toolbars nil)
 (add-to-list 'after-make-frame-functions #'kzar/hide-frame-toolbars)
+
+(set-face-attribute 'default nil :height 110)
 
 (load "~/work/personal/davemail/davemail.el")
