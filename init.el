@@ -141,10 +141,7 @@
 (setq irc-servers '((:server "irc.freenode.net")
                     (:server "irc.oftc.net")
                     (:server "irc.mozilla.org")
-                    (:server "team-irc.irccloud.com" :alias "eyeo")
-                    (:server "eyeo-betafish.irc.slack.com" :alias "betafish")
-                    (:server "deliberatetechnology.irc.slack.com"
-                             :alias "deliberatetechnology")))
+                    (:server "team-irc.irccloud.com" :alias "eyeo")))
 (require 'tls)
 (setq rcirc-server-alist
       (mapcar
