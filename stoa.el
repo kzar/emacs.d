@@ -8,7 +8,7 @@
 (setq x-select-enable-primary t)
 
 (setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "google-chrome")
+      browse-url-generic-program "xdg-open")
 
 ; Hide frame toolbars
 (defun kzar/hide-frame-toolbars (_)
