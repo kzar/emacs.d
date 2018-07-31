@@ -159,7 +159,9 @@
             (when (or (string-match "^\\*" (buffer-name))
                       (string-match "^#[^@]+\\@irc\\.\\(freenode\\|oftc\\)\\.net$" (buffer-name))
                       (and (string-match "^#[^@]+\\@eyeo$" (buffer-name))
-                           (not (string= "#general@eyeo" (buffer-name)))))
+                           (not (string= "#general@eyeo" (buffer-name))))
+                      (and (string-match "^#[^@]+\\@irc\.mozilla\.org$" (buffer-name))
+                           (not (string= "#adblockplus@irc.mozilla.org" (buffer-name)))))
               (setq rcirc-ignore-buffer-activity-flag t))))
 
 ; Tramp
