@@ -212,9 +212,12 @@
 ; Flyspell
 (setq ispell-program-name "hunspell")
 (setq flyspell-issue-welcome-flag nil)
-(setq flyspell-default-dictionary "british"
-      ispell-local-dictionary "british"
-      ispell-dictionary "british")
+(setq flyspell-default-dictionary "en_GB"
+      ispell-local-dictionary "en_GB"
+      ispell-dictionary "en_GB"
+      ispell-local-dictionary-alist
+      '(("en_GB" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_GB") nil utf-8)
+          ))
 
 ;; Clojure
 (require 'clojure-mode)
