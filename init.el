@@ -1,4 +1,7 @@
-(load "/usr/share/emacs/site-lisp/debian-startup.el")
+(let ((debian-startup "/usr/share/emacs/site-lisp/debian-startup.el"))
+  (when (file-exists-p debian-startup)
+    (load-file debian-startup)))
+
 (setq user-full-name "Dave Barker")
 (setq user-mail-address "kzar@kzar.co.uk")
 (load "~/.emacs.d/my-helpers.el")
