@@ -213,14 +213,11 @@
 (add-hook 'rcirc-markup-text-functions 'kzar/rcirc-tweak-messages)
 
 ; Flyspell
-(setq ispell-program-name "hunspell")
-(setq flyspell-issue-welcome-flag nil)
-(setq flyspell-default-dictionary "en_GB"
+(setq ispell-program-name "hunspell"
+      flyspell-issue-welcome-flag nil
       ispell-local-dictionary "en_GB"
-      ispell-dictionary "en_GB"
       ispell-local-dictionary-alist
-      '(("en_GB" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_GB") nil utf-8)
-          ))
+        '(("en_GB" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_GB") nil utf-8)))
 
 ;; Clojure
 (require 'clojure-mode)
