@@ -2,7 +2,7 @@
   (when (file-exists-p debian-startup)
     (load-file debian-startup)))
 
-(setq user-full-name "Dave Barker")
+(setq user-full-name "Dave Vandyke")
 (setq user-mail-address "kzar@kzar.co.uk")
 (load "~/.emacs.d/my-helpers.el")
 (load "~/.emacs.d/my-secrets.el")
