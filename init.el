@@ -288,6 +288,7 @@
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.tmpl?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode))
 (setq web-mode-display-table nil)
 (setq-default indent-tabs-mode nil)
 (set-face-attribute 'web-mode-html-tag-face nil :foreground "blue")
