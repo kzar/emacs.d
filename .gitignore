@@ -9,3 +9,4 @@ url/cookies
 var/
 session.*
 network-security.data
+transient/
