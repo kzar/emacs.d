@@ -1,4 +1,4 @@
-; Settings for my new Thinkpad T450
+; Settings for my Thinkpad T470
 
 ; Fix Unicode symbols
 (when (member "Symbola" (font-family-list))
