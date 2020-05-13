@@ -222,6 +222,8 @@
 
 ;; Javascript
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.cjs$" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.mjs$" . js2-mode))
 (add-to-list 'auto-mode-alist '("\\.jsm$" . js2-mode))
 (setq js2-highlight-level 3)
 (setf js2-bounce-indent-p t)
