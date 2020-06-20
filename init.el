@@ -138,18 +138,18 @@
     (require 'org-notmuch)))
 
 ; IRC
-(setq irc-servers '((:server "irc.freenode.net")
-                    (:server "irc.oftc.net")
-                    (:server "eyeo")))
 (require 'tls)
+(setq rcirc-default-nick "kzar")
+(setq rcirc-default-full-name "Dave Vandyke")
+(setq rcirc-authinfo
+      '(("irc.freenode.net" nickserv "kzar" freenode-password)
+        ("irc.oftc.net" nickserv "kzar" oftc-password)))
 (setq rcirc-server-alist
-      (mapcar
-       (lambda (s)
-         (let ((server (plist-get s :server)))
-           `("dub.kzar.co.uk" :port 31337 :nick "kzar"
-             :password ,(format "%s/%s:%s" znc-user server znc-password)
-           :encryption tls :server-alias ,(or (plist-get s :alias) server))))
-       irc-servers))
+      `(("irc.freenode.net" :port 7000 :encryption tls)
+        ("irc.oftc.net" :port 6697 :encryption tls)
+        ("bnc.irccloud.com" :port 6697
+         :password ,(format "bnc@%s:%s" system-name irccloud-password)
+         :encryption tls :server-alias "eyeo")))
 
 (rcirc-track-minor-mode 1)
 (add-hook 'rcirc-mode-hook
@@ -158,9 +158,7 @@
             (when (or (string-match "^\\*" (buffer-name))
                       (string-match "^#[^@]+\\@irc\\.\\(freenode\\|oftc\\)\\.net$" (buffer-name))
                       (and (string-match "^#[^@]+\\@eyeo$" (buffer-name))
-                           (not (string= "#general@eyeo" (buffer-name))))
-                      (and (string-match "^#[^@]+\\@irc\.mozilla\.org$" (buffer-name))
-                           (not (string= "#adblockplus@irc.mozilla.org" (buffer-name)))))
+                           (not (string= "#general@eyeo" (buffer-name)))))
               (setq rcirc-ignore-buffer-activity-flag t))))
 
 ; Tramp
