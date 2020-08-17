@@ -19,3 +19,6 @@
 (set-face-attribute 'default nil :height 110)
 
 (load "~/work/personal/davemail/davemail.el")
+
+(custom-set-variables
+ '(gnutls-algorithm-priority "normal:-vers-tls1.3"))
