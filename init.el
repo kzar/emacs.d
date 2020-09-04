@@ -29,6 +29,7 @@
                         ir-black-theme
                         js2-mode
                         list-utils
+                        lsp-mode
                         magit
                         markdown-mode
                         paredit
@@ -336,6 +337,15 @@
       (pop-mark))))
 
 (global-set-key (kbd "C-c SPC") 'indent-rectangle)
+
+; C++
+(require 'lsp)
+(add-hook 'c++-mode-hook 'lsp)
+(lsp-register-client
+  (make-lsp-client :new-connection (lsp-tramp-connection "clangd")
+                   :major-modes '(c++-mode)
+                   :remote? t
+                   :server-id 'clangd-remote))
 
 ; Load machine specific settings
 ; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/#comment-36295
