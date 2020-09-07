@@ -24,6 +24,7 @@
                         dash
                         epl
                         font-utils
+                        flycheck
                         gist
                         gnus-alias
                         ir-black-theme
@@ -32,13 +33,14 @@
                         lsp-mode
                         magit
                         markdown-mode
+                        notmuch
                         paredit
                         pcache
                         persistent-soft
                         php-mode
                         pkg-info
                         puppet-mode
-                        notmuch
+                        typescript-mode
                         rvm
                         ucs-utils
                         unicode-fonts
@@ -212,7 +214,7 @@
 (setq nrepl-log-messages t)
 (setq nrepl-hide-special-buffers t)
 
-;; Javascript
+;; JavaScript
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 (add-to-list 'auto-mode-alist '("\\.cjs$" . js2-mode))
 (add-to-list 'auto-mode-alist '("\\.mjs$" . js2-mode))
@@ -222,6 +224,20 @@
 (add-hook 'js2-mode-hook (lambda () (electric-indent-local-mode -1)))
 (setq-default js2-basic-offset 2)
 (setq js-indent-level 2)
+
+;; Typescript
+; We're using typescript-mode for syntax highlighting,
+; lsp + typescript-language-server for IDE-like functionality and
+; js2-mode's bounce-indent for indentation.
+; Note: M-x lsp to enable IDE functionality, doing that automatically
+;       is problematic.
+(require 'js2-mode)
+(add-to-list 'auto-mode-alist '("\\.ts$" . typescript-mode))
+(eval-after-load "typescript-mode"
+  '(defun typescript-indent-line ()))
+(add-hook 'typescript-mode-hook
+          '(lambda ()
+             (local-set-key (kbd "<tab>") 'js2-indent-bounce)))
 
 ;; Snipplets
 (require 'yasnippet)
