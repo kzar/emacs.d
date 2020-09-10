@@ -356,6 +356,10 @@
                    :remote? t
                    :server-id 'clangd-remote))
 
+; Disable lock files, since they can confuse some tools which watch for file
+; changes.
+(setq create-lockfiles nil)
+
 ; Load machine specific settings
 ; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/#comment-36295
 (let ((local-conf-name (format "~/.emacs.d/%s.el" system-name)))
