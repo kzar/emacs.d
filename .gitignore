@@ -10,3 +10,6 @@ var/
 session.*
 network-security.data
 transient/
+.emacs.desktop
+.emacs.desktop.lock
+.lsp-session-v1
