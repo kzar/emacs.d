@@ -28,4 +28,4 @@
 (add-hook 'after-make-frame-functions 'first-frame-opened)
 
 ; Tweak the font size
-(set-face-attribute 'default nil :height 105)
+(set-face-attribute 'default nil :height 110)
