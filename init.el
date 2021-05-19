@@ -145,10 +145,10 @@
 (setq rcirc-default-nick "kzar")
 (setq rcirc-default-full-name "Dave Vandyke")
 (setq rcirc-authinfo
-      `(("freenode" nickserv "kzar" ,(format "%s %s" "kzar" freenode-password))
+      `(("libera" nickserv "kzar" ,(format "%s %s" "kzar" libera-password))
         ("oftc" nickserv "kzar" ,(format "%s %s" oftc-password "kzar"))))
 (setq rcirc-server-alist
-      `(("irc.freenode.net" :port 7000 :encryption tls)
+      `(("irc.libera.chat" :port 6697 :encryption tls)
         ("irc.oftc.net" :port 6697 :encryption tls)))
 
 (rcirc-track-minor-mode 1)
