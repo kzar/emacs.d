@@ -1,4 +1,4 @@
-; Settings for my Thinkpad T470
+; Settings for my P14s AMD Gen 2
 
 ; Fix Unicode symbols
 (when (member "Symbola" (font-family-list))
@@ -17,3 +17,5 @@
 
 ; Tweak the font size
 (set-face-attribute 'default nil :height 110)
+
+(setq org-agenda-files '("~/Duckbox/ddg-org"))

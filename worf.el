@@ -29,3 +29,5 @@
 
 ; Tweak the font size
 (set-face-attribute 'default nil :height 110)
+
+(load "~/work/personal/davemail/davemail.el")
