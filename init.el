@@ -360,6 +360,13 @@
 ; changes.
 (setq create-lockfiles nil)
 
+; Set DuckDuckGo-specific indentation etc rules.
+(dir-locals-set-class-variables
+ 'duckduckgo-directory
+ '((nil . ((js-indent-level . 4)
+           (js2-strict-missing-semi-warning . nil)))))
+(dir-locals-set-directory-class "~/work/duckduckgo/" 'duckduckgo-directory)
+
 ; Load machine specific settings
 ; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/#comment-36295
 (let ((local-conf-name (format "~/.emacs.d/%s.el" system-name)))

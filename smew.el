@@ -18,4 +18,5 @@
 ; Tweak the font size
 (set-face-attribute 'default nil :height 110)
 
+; Use my DuckDuckGo org file instead of my personal org files
 (setq org-agenda-files '("~/Duckbox/ddg-org"))
