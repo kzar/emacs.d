@@ -181,7 +181,7 @@
 (add-to-list `exec-path "/opt/local/bin")
 
 ; Highlight tabs and trailing whitespace (custom-set-faces defines colours)
-(setq whitespace-style '(face trailing tabs lines-tail space-mark))
+(setq whitespace-style '(face trailing tabs space-mark))
 (setq whitespace-global-modes '(not rcirc-mode magit-mode))
 (global-whitespace-mode)
 ; Display zero-width unicode characters as standard spaces so we don't miss them
@@ -191,6 +191,10 @@
                                     (space-mark ?\xFEFF [? ])))
 ; Add all unicode characters to tab regexp so we highlight them too
 (setq whitespace-tab-regexp "\\([\t[:nonascii:]]\\)")
+
+; Display a long-line indicator for code.
+(setq display-fill-column-indicator-column 80)
+(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 
 ; Flyspell
 (setq ispell-program-name "hunspell"
