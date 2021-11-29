@@ -120,7 +120,8 @@
               (done ("WAITING"))
               ("TODO" ("WAITING") ("CANCELLED"))
               ("NEXT" ("WAITING") ("CANCELLED"))
-              ("DONE" ("WAITING") ("CANCELLED")))))
+              ("DONE" ("WAITING") ("CANCELLED"))))
+      org-archive-location "%s_archive::")
 (setq org-startup-indented t)
 (org-babel-do-load-languages
  'org-babel-load-languages
