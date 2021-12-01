@@ -111,7 +111,8 @@
       org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))
                                ("CODEREVIEW" . (:foreground "dark orange" :weight bold))
                                 ("BLOCKED" . (:foreground "dark red" :weight bold))
-                                ("CANCELLED" (:foreground "green" :weight bold))))
+                                ("CANCELLED" (:foreground "green" :weight bold)))
+      org-log-reschedule t)
 (setq org-log-state-notes-into-drawer t)
 (add-hook 'org-mode-hook (lambda () (flyspell-mode 1)))
 (setq org-todo-state-tags-triggers
