@@ -328,8 +328,9 @@
 (global-set-key (kbd "C-c SPC") 'indent-rectangle)
 
 ; C++
+(setq lsp-completion-provider :none)
 (require 'lsp)
-(add-hook 'c++-mode-hook 'lsp)
+;(add-hook 'c++-mode-hook 'lsp)
 (lsp-register-client
   (make-lsp-client :new-connection (lsp-tramp-connection "clangd")
                    :major-modes '(c++-mode)
