@@ -336,6 +336,11 @@
                    :remote? t
                    :server-id 'clangd-remote))
 
+; Enable spell-checking for code comments.
+; Note: Can also perform a full check with
+;        M-x ispell-comments-and-strings
+(add-hook 'prog-mode-hook 'flyspell-prog-mode)
+
 ; Disable lock files, since they can confuse some tools which watch for file
 ; changes.
 (setq create-lockfiles nil)
