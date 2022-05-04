@@ -229,16 +229,6 @@
           '(lambda ()
              (local-set-key (kbd "<tab>") 'js2-indent-bounce)))
 
-;; Snipplets
-(require 'yasnippet)
-
-; CoffeeScript
-(add-to-list `auto-mode-alist `("\\.coffee$" . coffee-mode))
-(add-to-list `auto-mode-alist `("Cakefile" . coffee-mode))
-(add-hook 'coffee-mode-hook
-          '(lambda ()
-             (setq tab-width 2)))
-
 ; YAML
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
