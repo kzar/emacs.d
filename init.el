@@ -20,7 +20,6 @@
 (defvar kzar/packages '(ace-window
                         cider
                         clojure-mode
-                        coffee-mode
                         dash
                         epl
                         font-utils
@@ -116,7 +115,8 @@
       org-log-reschedule t)
 (setq org-log-state-notes-into-drawer t)
 (add-hook 'org-mode-hook (lambda () (flyspell-mode 1)))
-(setq org-archive-location "%s_archive::")
+(setq org-archive-location "%s_archive::"
+      org-archive-subtree-save-file-p t)
 (setq org-startup-indented t)
 (org-babel-do-load-languages
  'org-babel-load-languages
