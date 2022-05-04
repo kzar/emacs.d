@@ -46,7 +46,8 @@
                         unicode-fonts
                         web-mode
                         yaml-mode
-                        yasnippet))
+                        yasnippet
+                        org))
 
 (defun abedra/packages-installed-p (packages)
   (loop for pkg in packages
