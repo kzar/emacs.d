@@ -112,7 +112,8 @@
                                ("WAITING" . (:foreground "orange" :weight bold))
                                ("DONE" (:foreground "forest green" :weight bold))
                                ("CANCELLED" (:foreground "forest green" :weight bold)))
-      org-log-reschedule t)
+      org-log-reschedule t
+      org-todo-repeat-to-state t)
 (setq org-log-state-notes-into-drawer t)
 (add-hook 'org-mode-hook (lambda () (flyspell-mode 1)))
 (setq org-archive-location "%s_archive::"
