@@ -208,6 +208,7 @@
 (setq nrepl-hide-special-buffers t)
 
 ;; JavaScript
+(require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 (add-to-list 'auto-mode-alist '("\\.cjs$" . js2-mode))
 (add-to-list 'auto-mode-alist '("\\.mjs$" . js2-mode))
@@ -225,7 +226,6 @@
 ; js2-mode's bounce-indent for indentation.
 ; Note: M-x lsp to enable IDE functionality, doing that automatically
 ;       is problematic.
-(require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.ts$" . typescript-mode))
 (eval-after-load "typescript-mode"
   '(defun typescript-indent-line ()))
