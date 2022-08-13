@@ -224,14 +224,13 @@
 ; We're using typescript-mode for syntax highlighting,
 ; lsp + typescript-language-server for IDE-like functionality and
 ; js2-mode's bounce-indent for indentation.
-; Note: M-x lsp to enable IDE functionality, doing that automatically
-;       is problematic.
 (add-to-list 'auto-mode-alist '("\\.ts$" . typescript-mode))
 (eval-after-load "typescript-mode"
   '(defun typescript-indent-line ()))
 (add-hook 'typescript-mode-hook
           '(lambda ()
-             (local-set-key (kbd "<tab>") 'js2-indent-bounce)))
+             (local-set-key (kbd "<tab>") 'js2-indent-bounce)
+             (lsp)))
 
 ; YAML
 (require 'yaml-mode)
@@ -356,6 +355,8 @@
  '((nil . ((js-indent-level . 4)
            (js2-strict-missing-semi-warning . nil)))))
 (dir-locals-set-directory-class "~/work/duckduckgo/" 'duckduckgo-directory)
+(add-to-list 'auto-mode-alist '("/duckduckgo-privacy-extension/.*\\.js$" .
+                                typescript-mode))
 
 ; Load machine specific settings
 ; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/#comment-36295
