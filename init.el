@@ -40,6 +40,7 @@
                         pkg-info
                         puppet-mode
                         typescript-mode
+                        rust-mode
                         rvm
                         ucs-utils
                         unicode-fonts
@@ -250,6 +251,11 @@
 (add-hook 'comint-mode-hook 'echo-false-comint)
 (setq ruby-insert-encoding-magic-comment nil)
 (add-to-list 'auto-mode-alist '("Vagrantfile" . ruby-mode))
+
+; Rust
+(require 'rust-mode)
+(add-to-list 'auto-mode-alist '("\\.rs$" . rust-mode))
+(add-hook 'rust-mode 'lsp)
 
 ; Clojurescript
 (setq auto-mode-alist (cons '("\\.cljs" . clojure-mode) auto-mode-alist))
