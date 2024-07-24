@@ -228,8 +228,6 @@
 (add-to-list 'auto-mode-alist '("\\.ts$" . typescript-mode))
 (eval-after-load "typescript-mode"
   '(defun typescript-indent-line ()))
-(setq lsp-clients-typescript-server-args
-      '("--stdio" "--tsserver-log-file" "/dev/stderr"))
 (add-hook 'typescript-mode-hook
           '(lambda ()
              (local-set-key (kbd "<tab>") 'js2-indent-bounce)
