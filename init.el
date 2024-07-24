@@ -193,7 +193,8 @@
 (setq whitespace-tab-regexp "\\([\t[:nonascii:]]\\)")
 
 ; Display a long-line indicator for code.
-(setq display-fill-column-indicator-column 80)
+(setq display-fill-column-indicator-column t)
+(setq-default fill-column 80)
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 
 ; Flyspell
@@ -228,8 +229,6 @@
 (add-to-list 'auto-mode-alist '("\\.ts$" . typescript-mode))
 (eval-after-load "typescript-mode"
   '(defun typescript-indent-line ()))
-(setq lsp-clients-typescript-server-args
-      '("--stdio" "--tsserver-log-file" "/dev/stderr"))
 (add-hook 'typescript-mode-hook
           '(lambda ()
              (local-set-key (kbd "<tab>") 'js2-indent-bounce)
@@ -347,6 +346,11 @@
                    :major-modes '(c++-mode)
                    :remote? t
                    :server-id 'clangd-remote))
+(defun cpp-indent-setup ()
+  (c-set-offset 'arglist-intro '+)
+  (c-set-offset 'arglist-close '0)
+  (c-set-offset 'statement-cont '+))
+(add-hook 'c++-mode-hook 'cpp-indent-setup)
 
 ; Enable spell-checking for code comments.
 ; Note: Can also perform a full check with
@@ -365,6 +369,8 @@
 (dir-locals-set-directory-class "~/work/duckduckgo/" 'duckduckgo-directory)
 (add-to-list 'auto-mode-alist '("/duckduckgo-privacy-extension/.*\\.js$" .
                                 typescript-mode))
+(add-to-list 'auto-mode-alist '("/duckduckgo-privacy-extension/build/.*" .
+                                fundamental-mode))
 
 ; Load machine specific settings
 ; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/#comment-36295
