@@ -357,6 +357,26 @@
 ;        M-x ispell-comments-and-strings
 (add-hook 'prog-mode-hook 'flyspell-prog-mode)
 
+(defun kzar/org-copy-rich-text ()
+  "Copy the current paragraph (or region if active) as rich text.
+   Useful for pasting org-mode content into tools like Asana."
+  (interactive)
+  (let* ((beg (if (use-region-p) (region-beginning) (save-excursion (org-backward-paragraph) (point))))
+         (end (if (use-region-p) (region-end) (save-excursion (org-forward-paragraph) (point))))
+         (text (buffer-substring beg end))
+         (text (replace-regexp-in-string "^# " "** " text))
+         (html (org-export-string-as text 'html t '(:with-toc nil)))
+         (html (replace-regexp-in-string "<span class=\"section-number-[0-9]+\">[0-9.]+</span>" "" html))
+         (html (replace-regexp-in-string "</p>\n+<p>" "</p>\n<p>&nbsp;</p>\n<p>" html)))
+    (with-temp-buffer
+      (insert html)
+      (call-process-region (point-min) (point-max)
+                           "wl-copy" nil nil nil
+                           "--type" "text/html"))
+    (message "Copied as rich text.")))
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c M-w") 'kzar/org-copy-rich-text))
+
 ; Disable lock files, since they can confuse some tools which watch for file
 ; changes.
 (setq create-lockfiles nil)
