@@ -394,7 +394,8 @@
 
 ; Load machine specific settings
 ; http://emacsblog.org/2007/10/07/declaring-emacs-bankruptcy/#comment-36295
-(let ((local-conf-name (format "~/.emacs.d/%s.el" system-name)))
-  (cond ((file-exists-p local-conf-name)
-         (load-file local-conf-name))
-        ((message "%s doesn't exist or I'd load it." local-conf-name))))
+(let* ((short-host (downcase (car (split-string (system-name) "\\."))))
+       (local-conf (expand-file-name (format "%s.el" short-host) "~/.emacs.d")))
+  (cond ((file-exists-p local-conf)
+         (load-file local-conf))
+        ((message "%s doesn't exist or I'd load it." local-conf))))
