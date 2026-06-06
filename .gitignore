@@ -2,6 +2,7 @@
 auto-save-list/
 elpa/
 my-secrets.el
+my-custom.el
 ido.last
 my-secrets.el~
 tramp
@@ -13,3 +14,7 @@ transient/
 .emacs.desktop
 .emacs.desktop.lock
 .lsp-session-v1
+eln-cache/
+org-persist/
+/history
+/places

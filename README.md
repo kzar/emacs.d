@@ -11,7 +11,7 @@ Again more for me but here's how I use this repo:
       git clone git@github.com:kzar/emacs.d.git ~/.emacs.d
       cp ~/.emacs.d/my-secrets.el.sample ~/.emacs.d/my-secrets.el
 
-(Requires Emacs 24 as it makes use of the packages module.)
+(Requires Emacs 29 as it makes use of the packages module.)
 
 ## Resources
 

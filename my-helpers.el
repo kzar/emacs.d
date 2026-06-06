@@ -1,19 +1,115 @@
-(defun describe-eol ()
+;;; -*- lexical-binding: t; -*-
+
+(require 'cl-lib)
+
+(defun kzar/describe-eol ()
   (interactive)
   (let ((eol-type (coding-system-eol-type buffer-file-coding-system)))
     (when (vectorp eol-type)
       (setq eol-type (coding-system-eol-type (aref eol-type 0))))
     (message "Line endings are of type: %s"
-             (case eol-type
+             (cl-case eol-type
                (0 "Unix") (1 "DOS") (2 "Mac") (t "Unknown")))))
 
-(defun zap-up-to-char (char)
-  (interactive "cCharacter to delete up to: ")
-  (zap-to-char 1 char)
-  (insert char)
-  (backward-char))
-
 ; http://lists.gnu.org/archive/html/help-gnu-emacs/2009-10/msg00187.html
-(defun sort-csv ()
+(defun kzar/sort-csv ()
   (interactive)
   (sort-regexp-fields nil "[^ ,]+" "\\&" (region-beginning) (region-end)))
+
+(defun kzar/indent-rectangle ()
+  "Manually indent a region of code, taking care of trailing whitespace."
+  (interactive)
+  (when (region-active-p)
+    (save-excursion
+      (let ((start (min (region-beginning) (region-end)))
+            (end (max (region-beginning) (region-end)))
+            (region-indent nil)
+            (first-line-start 0)
+            (last-line-start 0)
+            (last-line-end 0))
+        ; Record the start / end positions
+        (goto-char end)
+        (setq last-line-end (line-end-position))
+        (goto-char start)
+        (setq first-line-start (line-beginning-position))
+        ; Figure out the base indentation for the selected region
+        (while (< (point) last-line-end)
+          (unless (= (line-end-position) (line-beginning-position))
+            (setq region-indent (min (or region-indent (current-indentation))
+                                     (current-indentation)))
+            (setq last-line-start (line-beginning-position)))
+          (forward-line))
+        ; Use rectangle mark mode to select the base indentation and
+        ; prompt the user to alter that region
+        (push-mark first-line-start)
+        (goto-char (+ last-line-start region-indent))
+        (call-interactively 'string-rectangle)
+        ; Clear any trailing whitespace
+        (delete-trailing-whitespace (region-beginning) (region-end)))
+      (pop-mark))))
+
+(defun kzar/minibuffer-enter-magit ()
+  "Abort the file/buffer prompt and open `magit-status' for the directory there.
+When completion is active and the typed text isn't already a directory, accept
+the top match first (what fido shows) -- so a partial repo name resolves to the
+matched directory without having to press TAB."
+  (interactive)
+  (let ((orig-bell ring-bell-function))
+    ;; Aborting the prompt raises a quit, which rings the bell and echoes "Quit"
+    ;; at that instant -- so clearing the text afterwards isn't enough.  Silence
+    ;; the bell across the abort; the timer restores it and clears the echo.
+    (setq ring-bell-function #'ignore)
+    (unless (file-directory-p (expand-file-name (minibuffer-contents)))
+      (when minibuffer-completion-table
+        (ignore-errors (minibuffer-force-complete))))
+    (let* ((path (expand-file-name (minibuffer-contents)))
+           (dir (if (file-directory-p path)
+                    (file-name-as-directory path)
+                  (file-name-directory path))))
+      (run-with-timer 0 nil (lambda ()
+                              (setq ring-bell-function orig-bell)
+                              (message nil)
+                              (magit-status dir)))
+      (minibuffer-quit-recursive-edit))))
+
+(defun kzar/org-copy-rich-text ()
+  "Copy the current paragraph (or region if active) as rich text.
+   Useful for pasting org-mode content into tools like Asana."
+  (interactive)
+  (let* ((beg (if (use-region-p) (region-beginning) (save-excursion (org-backward-paragraph) (point))))
+         (end (if (use-region-p) (region-end) (save-excursion (org-forward-paragraph) (point))))
+         (text (buffer-substring beg end))
+         (text (replace-regexp-in-string "^# " "** " text))
+         (html (org-export-string-as text 'html t '(:with-toc nil)))
+         (html (replace-regexp-in-string "<span class=\"section-number-[0-9]+\">[0-9.]+</span>" "" html))
+         (html (replace-regexp-in-string "</p>\n+<p>" "</p>\n<p>&nbsp;</p>\n<p>" html)))
+    (with-temp-buffer
+      (insert html)
+      ;; Send HTML to the OS clipboard as rich text, cross-platform.
+      (cond
+       ;; macOS: pbcopy can't take text/html, so convert to RTF first.
+       ((eq system-type 'darwin)
+        (shell-command-on-region
+         (point-min) (point-max)
+         "textutil -stdin -format html -convert rtf -stdout | pbcopy"))
+       ;; Wayland.
+       ((executable-find "wl-copy")
+        (call-process-region (point-min) (point-max)
+                             "wl-copy" nil nil nil
+                             "--type" "text/html"))
+       ;; X11.
+       ((executable-find "xclip")
+        (call-process-region (point-min) (point-max)
+                             "xclip" nil nil nil
+                             "-selection" "clipboard" "-t" "text/html"))
+       (t (message "No clipboard backend (pbcopy/wl-copy/xclip) found."))))
+    (message "Copied as rich text.")))
+
+(defun kzar/setup-linux-fonts ()
+  "Use Symbola for Unicode glyphs and set the default font height."
+  (when (member "Symbola" (font-family-list))
+    (set-fontset-font t 'unicode "Symbola" nil 'prepend))
+  (set-face-attribute 'default nil :height 110))
+
+(provide 'my-helpers)
+;;; my-helpers.el ends here
