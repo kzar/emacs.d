@@ -44,7 +44,6 @@
 (put 'narrow-to-region 'disabled nil)
 
 (column-number-mode 1)
-(fido-mode 1)
 (pixel-scroll-precision-mode 1)
 (undelete-frame-mode 1)
 
@@ -79,6 +78,27 @@
 ;; Persist history and cursor positions across sessions.
 (savehist-mode 1)
 (save-place-mode 1)
+
+;; Completion UI
+(use-package vertico
+  :init (vertico-mode)
+  :bind (:map vertico-map
+              ("C-c g" . kzar/minibuffer-enter-magit))
+  :custom (vertico-cycle t))
+
+(use-package vertico-directory
+  :ensure nil
+  :after vertico
+  :bind (:map vertico-map
+              ("RET"   . vertico-directory-enter)
+              ("DEL"   . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
 
 ;; Zap up to (not including) a char.
 (keymap-global-set "M-z" #'zap-up-to-char)
@@ -139,8 +159,6 @@
          ("C-x M-g" . magit-dispatch))
   :hook (git-commit-mode . flyspell-mode)
   :custom (magit-diff-refine-hunk t))
-
-(keymap-set minibuffer-local-completion-map "C-c g" #'kzar/minibuffer-enter-magit)
 
 ;; Languages
 

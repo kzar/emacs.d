@@ -49,20 +49,21 @@
       (pop-mark))))
 
 (defun kzar/minibuffer-enter-magit ()
-  "Abort the file/buffer prompt and open `magit-status' for the directory there.
-When completion is active and the typed text isn't already a directory, accept
-the top match first (what fido shows) -- so a partial repo name resolves to the
-matched directory without having to press TAB."
+  "Abort the file/buffer prompt and open `magit-status' for the currently
+   selected directory."
   (interactive)
   (let ((orig-bell ring-bell-function))
     ;; Aborting the prompt raises a quit, which rings the bell and echoes "Quit"
     ;; at that instant -- so clearing the text afterwards isn't enough.  Silence
     ;; the bell across the abort; the timer restores it and clears the echo.
     (setq ring-bell-function #'ignore)
-    (unless (file-directory-p (expand-file-name (minibuffer-contents)))
-      (when minibuffer-completion-table
-        (ignore-errors (minibuffer-force-complete))))
-    (let* ((path (expand-file-name (minibuffer-contents)))
+    (let* ((typed (expand-file-name (minibuffer-contents)))
+           (path (if (file-directory-p typed)
+                     typed
+                   (expand-file-name
+                    (if (bound-and-true-p vertico--input)
+                        (vertico--candidate)
+                      (minibuffer-contents)))))
            (dir (if (file-directory-p path)
                     (file-name-as-directory path)
                   (file-name-directory path))))
