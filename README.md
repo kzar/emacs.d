@@ -4,14 +4,19 @@
 
 My personal Emacs configuration. Mostly here for my own convenience although feel free to have a poke around.
 
+## Requirements
+
+- Emacs >=29
+- [`ripgrep`](https://github.com/BurntSushi/ripgrep)
+- [`fd`](https://github.com/sharkdp/fd)
+- [`hunspell`](https://github.com/hunspell/hunspell) (and an `en_GB` dictionary)
+
 ## Usage
 
 Again more for me but here's how I use this repo:
 
       git clone git@github.com:kzar/emacs.d.git ~/.emacs.d
       cp ~/.emacs.d/my-secrets.el.sample ~/.emacs.d/my-secrets.el
-
-(Requires Emacs 29 as it makes use of the packages module.)
 
 ## Resources
 

@@ -100,6 +100,41 @@
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
+;; Project file/directory searching.
+(use-package affe
+  :commands (affe-find affe-grep)
+  :config
+  (setq affe-find-command "rg --color=never --files"))
+
+(defun kzar/project-root-or-default ()
+  (if-let* ((proj (project-current))) (project-root proj) default-directory))
+
+(defun kzar/project-find-file ()
+  (interactive)
+  (affe-find (kzar/project-root-or-default)))
+
+(defun kzar/project-grep ()
+  (interactive)
+  (affe-grep (kzar/project-root-or-default)))
+
+(defun kzar/project-find-dir ()
+  (interactive)
+  (let ((affe-find-command "fd --type d --color=never"))
+    (affe-find (kzar/project-root-or-default))))
+
+(with-eval-after-load 'project
+  (keymap-set project-prefix-map "f" #'kzar/project-find-file)
+  (keymap-set project-prefix-map "g" #'kzar/project-grep)
+  (keymap-set project-prefix-map "d" #'kzar/project-find-dir)
+  (keymap-set project-prefix-map "m" #'magit-project-status)
+  (when-let ((e (assq 'project-find-file   project-switch-commands)))
+    (setcar e #'kzar/project-find-file))
+  (when-let ((e (assq 'project-find-regexp project-switch-commands)))
+    (setcar e #'kzar/project-grep))
+  (when-let ((e (assq 'project-find-dir    project-switch-commands)))
+    (setcar e #'kzar/project-find-dir))
+  (add-to-list 'project-switch-commands '(magit-project-status "Magit") t))
+
 ;; Zap up to (not including) a char.
 (keymap-global-set "M-z" #'zap-up-to-char)
 
