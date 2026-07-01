@@ -73,39 +73,6 @@
                               (magit-status dir)))
       (minibuffer-quit-recursive-edit))))
 
-(defun kzar/org-copy-rich-text ()
-  "Copy the current paragraph (or region if active) as rich text.
-   Useful for pasting org-mode content into tools like Asana."
-  (interactive)
-  (let* ((beg (if (use-region-p) (region-beginning) (save-excursion (org-backward-paragraph) (point))))
-         (end (if (use-region-p) (region-end) (save-excursion (org-forward-paragraph) (point))))
-         (text (buffer-substring beg end))
-         (text (replace-regexp-in-string "^# " "** " text))
-         (html (org-export-string-as text 'html t '(:with-toc nil)))
-         (html (replace-regexp-in-string "<span class=\"section-number-[0-9]+\">[0-9.]+</span>" "" html))
-         (html (replace-regexp-in-string "</p>\n+<p>" "</p>\n<p>&nbsp;</p>\n<p>" html)))
-    (with-temp-buffer
-      (insert html)
-      ;; Send HTML to the OS clipboard as rich text, cross-platform.
-      (cond
-       ;; macOS: pbcopy can't take text/html, so convert to RTF first.
-       ((eq system-type 'darwin)
-        (shell-command-on-region
-         (point-min) (point-max)
-         "textutil -stdin -format html -convert rtf -stdout | pbcopy"))
-       ;; Wayland.
-       ((executable-find "wl-copy")
-        (call-process-region (point-min) (point-max)
-                             "wl-copy" nil nil nil
-                             "--type" "text/html"))
-       ;; X11.
-       ((executable-find "xclip")
-        (call-process-region (point-min) (point-max)
-                             "xclip" nil nil nil
-                             "-selection" "clipboard" "-t" "text/html"))
-       (t (message "No clipboard backend (pbcopy/wl-copy/xclip) found."))))
-    (message "Copied as rich text.")))
-
 (defun kzar/setup-linux-fonts ()
   "Use Symbola for Unicode glyphs and set the default font height."
   (when (member "Symbola" (font-family-list))

@@ -25,6 +25,7 @@
 (setq user-full-name "Dave Vandyke"
       user-mail-address "kzar@kzar.co.uk")
 (load "~/.emacs.d/my-helpers.el")
+(load "~/.emacs.d/rich-text.el")
 (load "~/.emacs.d/my-secrets.el")
 
 ;; Editor basics.
@@ -385,8 +386,6 @@
 
 ;; Misc keybindings.
 (keymap-global-set "C-c SPC" #'kzar/indent-rectangle)
-(with-eval-after-load 'org
-  (keymap-set org-mode-map "C-c M-w" #'kzar/org-copy-rich-text))
 (keymap-global-set "C-c d" #'duplicate-dwim)
 
 ;; Garbage collection. (Set high threshold while active, then collect on idle.)
