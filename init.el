@@ -35,10 +35,11 @@
 
 (prefer-coding-system 'utf-8)
 
-(dolist (dir '("/opt/homebrew/bin" "/usr/local/bin"))
-  (when (file-directory-p dir)
-    (add-to-list 'exec-path dir)
-    (setenv "PATH" (concat dir path-separator (getenv "PATH")))))
+(dolist (dir '("/opt/homebrew/bin" "/usr/local/bin" "~/.cargo/bin"))
+  (let ((dir (expand-file-name dir)))
+    (when (file-directory-p dir)
+      (add-to-list 'exec-path dir)
+      (setenv "PATH" (concat dir path-separator (getenv "PATH"))))))
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
@@ -100,6 +101,19 @@
   :custom
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
+
+;; In-buffer completion UI
+(use-package corfu
+  :init (global-corfu-mode)
+  :custom ((corfu-auto t)
+           (corfu-auto-prefix 2))
+  :config
+  (require 'corfu-popupinfo)
+  (corfu-popupinfo-mode 1))
+
+(use-package cape
+  :init
+  (add-hook 'completion-at-point-functions #'cape-file t))
 
 ;; Project file/directory searching.
 (use-package affe
@@ -198,6 +212,27 @@
 
 ;; Languages
 
+;; Tree-sitter
+(use-package treesit-auto
+  :custom (treesit-auto-install 'prompt)
+  :config
+  (setq treesit-auto-langs
+        '(bash c cpp css javascript json python rust tsx typescript yaml))
+  (global-treesit-auto-mode))
+(setq treesit-font-lock-level 4)
+
+;; LSP
+(use-package eglot
+  :ensure nil
+  :hook ((typescript-ts-mode tsx-ts-mode js-ts-mode
+          rust-ts-mode c-ts-mode c++-ts-mode) . eglot-ensure)
+  :custom (eglot-autoshutdown t))
+
+(use-package eldoc-box
+  :hook (eglot-managed-mode . eldoc-box-hover-mode))
+(use-package breadcrumb
+  :hook (prog-mode . breadcrumb-local-mode))
+
 ;; Clojure / ClojureScript
 (use-package clojure-mode
   :mode (("\\.clj\\'"  . clojure-mode)
@@ -205,48 +240,23 @@
          ("\\.cljs\\'" . clojure-mode)))
 
 ;; JavaScript
-(use-package js2-mode
-  :mode (("\\.js\\'"  . js2-mode)
-         ("\\.cjs\\'" . js2-mode)
-         ("\\.mjs\\'" . js2-mode)
-         ("\\.jsm\\'" . js2-mode))
-  :hook (js2-mode . (lambda () (electric-indent-local-mode -1)))
-  :custom ((js2-highlight-level 3)
-           (js2-bounce-indent-p t)
-           (js2-basic-offset 2)
-           (js-indent-level 2))
-  :config
-  (add-to-list 'js2-global-externs "globalThis"))
+(use-package js2-mode :commands js2-indent-bounce)
+(setq js-indent-level 2)
+(dolist (ext '("\\.cjs\\'" "\\.mjs\\'"))
+  (add-to-list 'auto-mode-alist (cons ext #'js-mode)))
 
-;; LSP
-(use-package lsp-mode
-  :init (setq lsp-completion-provider :none)
-  :commands lsp
-  :config
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-tramp-connection "clangd")
-                    :major-modes '(c++-mode)
-                    :remote? t
-                    :server-id 'clangd-remote)))
+;; Keep the nice indent-bounce feature from js2-mode.
+(dolist (hook '(js-ts-mode-hook typescript-ts-mode-hook tsx-ts-mode-hook))
+  (add-hook
+   hook
+   (lambda ()
+     (require 'js2-mode)
+     (electric-indent-local-mode -1)
+     (keymap-local-set "<tab>" #'js2-indent-bounce))))
 
-;; TypeScript: typescript-mode highlighting, lsp IDE features, js2 bounce-indent.
-(use-package typescript-mode
-  :mode ("\\.ts\\'" . typescript-mode)
-  :hook (typescript-mode . (lambda ()
-                             (require 'js2-mode) ; js2-indent-bounce isn't autoloaded
-                             (keymap-local-set "<tab>" #'js2-indent-bounce)
-                             (lsp)))
-  :config
-  ;; No-op so js2 bounce-indent wins.
-  (defun typescript-indent-line ()))
-
-;; C++
-;; (add-hook 'c++-mode-hook #'lsp)
-(defun cpp-indent-setup ()
-  (c-set-offset 'arglist-intro '+)
-  (c-set-offset 'arglist-close '0)
-  (c-set-offset 'statement-cont '+))
-(add-hook 'c++-mode-hook #'cpp-indent-setup)
+(with-eval-after-load 'c-ts-mode
+  (setq c-ts-mode-indent-offset 2
+        c-ts-mode-indent-style 'k&r))
 
 ;; C-c o jumps between sibling files (e.g. C/C++ header <-> source).
 (setq find-sibling-rules
@@ -254,23 +264,8 @@
         ("\\([^/]+\\)\\.\\(?:h\\|hh\\|hpp\\|hxx\\)\\'" "\\1.c" "\\1.cc" "\\1.cpp" "\\1.cxx")))
 (keymap-global-set "C-c o" #'find-sibling-file)
 
-;; Rust
-(use-package rust-mode
-  :mode ("\\.rs\\'" . rust-mode)
-  :hook (rust-mode . lsp))
-
-;; YAML
-(use-package yaml-mode
-  :mode (("\\.yml\\'"  . yaml-mode)
-         ("\\.yaml\\'" . yaml-mode)))
-
 ;; Python
-(use-package python
-  :ensure nil
-  :custom (python-indent-offset 2)
-  :hook (python-mode . (lambda ()
-                         (setq indent-tabs-mode nil
-                               tab-width 2))))
+(setq python-indent-offset 2)
 
 ;; Stop inferior shells from echoing input twice.
 (defun echo-false-comint ()
@@ -380,7 +375,6 @@
 (setq tramp-default-method "ssh")
 
 ;; Manually-invoked tools.
-(use-package flycheck :defer t)
 (use-package php-mode :defer t)
 (use-package notmuch  :defer t)
 
@@ -396,15 +390,11 @@
            (gcmh-high-cons-threshold (* 64 1024 1024))))
 
 ;; DuckDuckGo-specific rules.
-(dolist (v '((js2-strict-missing-semi-warning) (js-indent-level . 4)))
-  (add-to-list 'safe-local-variable-values v))
+(add-to-list 'safe-local-variable-values '(js-indent-level . 4))
 (dir-locals-set-class-variables
  'duckduckgo-directory
- '((nil . ((js-indent-level . 4)
-           (js2-strict-missing-semi-warning . nil)))))
+ '((nil . ((js-indent-level . 4)))))
 (dir-locals-set-directory-class "~/work/duckduckgo/" 'duckduckgo-directory)
-(add-to-list 'auto-mode-alist '("/duckduckgo-privacy-extension/.*\\.js$" .
-                                typescript-mode))
 (add-to-list 'auto-mode-alist '("/duckduckgo-privacy-extension/build/.*" .
                                 fundamental-mode))
 
