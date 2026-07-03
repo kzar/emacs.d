@@ -48,6 +48,7 @@
 (column-number-mode 1)
 (pixel-scroll-precision-mode 1)
 (undelete-frame-mode 1)
+(which-key-mode 1)
 
 (setq global-auto-revert-non-file-buffers t)
 (global-auto-revert-mode 1)
