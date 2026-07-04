@@ -320,7 +320,8 @@
   :mode ("\\.org\\'" . org-mode)
   :bind (("C-c l" . org-store-link)
          ("C-c a" . org-agenda))
-  :hook (org-mode . flyspell-mode)
+  :hook ((org-mode . flyspell-mode)
+         (org-mode . visual-line-mode))
   :config
   (setq org-log-done t
         org-agenda-files '("~/Davebox/todo-org/todo.org"))
