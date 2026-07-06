@@ -15,8 +15,5 @@
 ; Tweak the font size.
 (set-face-attribute 'default nil :height 125)
 
-; Get Hunspell working.
-(setenv "DICPATH" (expand-file-name "~/Library/Spelling"))
-
 ;; Use my DuckDuckGo org file instead of my personal org files
 (setq org-agenda-files '("~/Duckbox/ddg-org"))

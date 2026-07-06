@@ -9,7 +9,7 @@ My personal Emacs configuration. Mostly here for my own convenience although fee
 - Emacs >=30
 - [`ripgrep`](https://github.com/BurntSushi/ripgrep)
 - [`fd`](https://github.com/sharkdp/fd)
-- [`hunspell`](https://github.com/hunspell/hunspell) (and an `en_GB` dictionary)
+- [`enchant`](https://rrthomas.github.io/enchant/) (and an `en_GB` dictionary)
 
 ### Language servers
 

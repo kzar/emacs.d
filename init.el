@@ -173,14 +173,14 @@
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 
 ;; Spell-checking
-(setq ispell-program-name "hunspell"
-      flyspell-issue-welcome-flag nil
-      ispell-local-dictionary "en_GB"
-      ispell-local-dictionary-alist
-      '(("en_GB" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_GB") nil utf-8)))
-
-(add-hook 'prog-mode-hook 'flyspell-prog-mode)
-(add-hook 'rst-mode-hook #'flyspell-mode)
+(use-package jinx
+  :hook (emacs-startup . global-jinx-mode)
+  :bind (("M-$" . jinx-correct)
+         ("C-M-$" . jinx-languages))
+  :custom (jinx-languages "en_GB")
+  :config
+  (set-face-attribute 'jinx-misspelled nil
+                      :underline '(:style wave :color "Red1")))
 
 ;; Fonts
 (defvar kzar/gui-frame-hook nil
@@ -208,7 +208,6 @@
 (use-package magit
   :bind (("C-c g" . magit-status)
          ("C-x M-g" . magit-dispatch))
-  :hook (git-commit-mode . flyspell-mode)
   :custom (magit-diff-refine-hunk t))
 
 ;; Languages
@@ -277,7 +276,6 @@
 (use-package markdown-mode
   :mode (("\\.md\\'"       . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :hook (markdown-mode . flyspell-mode)
   :config
   (setq markdown-command
         (cond ((executable-find "pandoc")       "pandoc -f gfm -t html")
@@ -320,8 +318,7 @@
   :mode ("\\.org\\'" . org-mode)
   :bind (("C-c l" . org-store-link)
          ("C-c a" . org-agenda))
-  :hook ((org-mode . flyspell-mode)
-         (org-mode . visual-line-mode))
+  :hook (org-mode . visual-line-mode)
   :config
   (setq org-log-done t
         org-agenda-files '("~/Davebox/todo-org/todo.org"))
@@ -370,7 +367,7 @@
 (rcirc-track-minor-mode 1)
 (add-hook 'rcirc-mode-hook
           (lambda ()
-            (flyspell-mode 1)
+            (jinx-mode 1)
             (setq rcirc-ignore-buffer-activity-flag t)))
 
 ;; Tramp
