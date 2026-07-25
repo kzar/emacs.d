@@ -21,12 +21,16 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+;; Load local libraries.
+(eval-and-compile
+  (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory)))
+(require 'my-helpers)
+(require 'rich-text)
+(load "~/.emacs.d/my-secrets.el")
+
 ;; Set my username etc.
 (setq user-full-name "Dave Vandyke"
       user-mail-address "kzar@kzar.co.uk")
-(load "~/.emacs.d/my-helpers.el")
-(load "~/.emacs.d/rich-text.el")
-(load "~/.emacs.d/my-secrets.el")
 
 ;; Editor basics.
 (setq inhibit-splash-screen t
