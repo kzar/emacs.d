@@ -227,8 +227,6 @@
                       :underline '(:style wave :color "Red1")))
 
 ;; Fonts
-(defvar kzar/gui-frame-hook nil
-  "Hook run once in the first graphical frame, for font/face setup.")
 (defvar kzar/gui-frame-setup-done nil
   "Non-nil once `kzar/gui-frame-hook' has run in a graphical frame.")
 
