@@ -109,7 +109,7 @@
 
 ;; Search and navigation.
 (use-package consult
-  :commands (consult-fd consult-ripgrep)
+  :commands (consult-completion-in-region consult-fd consult-ripgrep)
   :defines consult-source-buffer
   :bind (("C-x b" . consult-buffer)
          ("M-y"   . consult-yank-pop)
@@ -121,7 +121,8 @@
   :custom
   (consult-buffer-sources '(consult-source-buffer))
   :init
-  (setopt xref-search-program 'ripgrep
+  (setopt completion-in-region-function #'consult-completion-in-region
+          xref-search-program 'ripgrep
           xref-show-xrefs-function #'consult-xref
           xref-show-definitions-function #'consult-xref)
   :config
@@ -166,13 +167,23 @@
     (setcar e #'kzar/project-find-dir))
   (add-to-list 'project-switch-commands '(magit-project-status "Magit") t))
 
-;; In-buffer completion UI
+;; In-buffer completion UI.
 (use-package corfu
-  :init (global-corfu-mode)
-  :custom ((corfu-auto t)
-           (corfu-auto-prefix 2))
+  :defer t
+  :hook
+  (eglot-managed-mode .
+   (lambda ()
+     (if (eglot-managed-p)
+         (progn
+           (setq-local corfu-auto t)
+           (corfu-mode 1))
+       (corfu-mode -1)
+       (kill-local-variable 'corfu-auto))))
+  :custom
+  (corfu-auto nil)
+  (corfu-auto-prefix 2)
+  (corfu-popupinfo-delay '(0.5 . 0.5))
   :config
-  (require 'corfu-popupinfo)
   (corfu-popupinfo-mode 1))
 
 (use-package cape
@@ -203,8 +214,7 @@
 ;; Spell-checking
 (use-package jinx
   :hook (emacs-startup . global-jinx-mode)
-  :bind (("M-$" . jinx-correct)
-         ("C-M-$" . jinx-languages))
+  :bind (("C-c C-M-i" . jinx-correct))
   :custom (jinx-languages "en_GB")
   :config
   (set-face-attribute 'jinx-misspelled nil
