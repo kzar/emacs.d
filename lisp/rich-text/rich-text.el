@@ -10,7 +10,7 @@
 ;; reader in the paste direction and as a custom writer in the copy
 ;; direction.
 ;;
-;; Requires pandoc >= 3.0.
+;; Requires Pandoc >= 3.0.
 
 ;;; Code:
 
@@ -158,25 +158,28 @@ so a selection from a nested position converts at the top level."
   "How `rich-text/yank' converts clipboard HTML per major mode:
 \(MODE TARGET-FORMAT PANDOC-ARGS...).  Modes are matched with
 `derived-mode-p', so derived modes (e.g. `gfm-mode') inherit their parent's
-entry; the from-side is always `rich-text/pandoc-lua'.  Markdown is
-hard-wrapped at 100 columns, where the source width is also the displayed
-width; Org is pasted with one long line per paragraph, because its folded
-link URLs make character-based wrapping look ragged -- let the display wrap
-it instead (e.g. `visual-line-mode').")
+entry; an unmatched mode uses the `markdown-mode' entry as its default.  The
+from-side is always `rich-text/pandoc-lua'.  Markdown is hard-wrapped at 100
+columns, where the source width is also the displayed width; Org is pasted
+with one long line per paragraph, because its folded link URLs make
+character-based wrapping look ragged -- let the display wrap it instead
+\(e.g. `visual-line-mode').")
 
 (defun rich-text/yank ()
   "Yank the clipboard's rich text, converted to the current buffer's markup.
 When the clipboard holds HTML (e.g. a formatted selection copied from a web
 page) convert it with pandoc to the format matching the major mode -- Markdown
 in `markdown-mode', Org syntax in `org-mode', reStructuredText in `rst-mode'.
+Modes without a matching target also use Markdown.
 The conversion reads through the `rich-text/pandoc-lua' reader, which repairs
 and tidies the HTML (Asana's flat lists included) before pandoc writes the
 target markup, wrapped as `rich-text/pandoc-targets' specifies.  With no HTML
-on the clipboard, no matching mode, or no usable pandoc setup, fall back to a
-plain `yank'.  Any active region is replaced, like a normal yank."
+on the clipboard or no usable pandoc setup, fall back to a plain `yank'.  Any
+active region is replaced, like a normal yank."
   (interactive)
-  (let* ((cell (seq-find (lambda (c) (derived-mode-p (car c)))
-                         rich-text/pandoc-targets))
+  (let* ((cell (or (seq-find (lambda (c) (derived-mode-p (car c)))
+                             rich-text/pandoc-targets)
+                   (assq 'markdown-mode rich-text/pandoc-targets)))
          (html (and cell
                     (executable-find "pandoc")
                     (file-readable-p rich-text/pandoc-lua)

@@ -23,7 +23,8 @@
 
 ;; Load local libraries.
 (eval-and-compile
-  (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory)))
+  (dolist (dir '("lisp" "lisp/rich-text"))
+    (add-to-list 'load-path (expand-file-name dir user-emacs-directory))))
 (require 'my-helpers)
 (require 'rich-text)
 (load "~/.emacs.d/my-secrets.el")

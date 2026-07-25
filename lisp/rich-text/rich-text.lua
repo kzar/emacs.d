@@ -17,7 +17,7 @@
 -- As a WRITER (-t) it emits HTML prepared for pasting into Asana; see the
 -- writer section at the bottom.
 --
--- Requires pandoc >= 3.0.
+-- Requires Pandoc >= 3.0.
 
 PANDOC_VERSION:must_be_at_least '3.0'
 
@@ -217,6 +217,92 @@ local function asciify (str)
   return pandoc.Str(s)
 end
 
+-- Pandoc normalizes most data-* attributes by removing the prefix, except
+-- where the resulting name is already an HTML attribute (e.g. data-height).
+local function data_attribute (el, name)
+  return el.attributes[name] or el.attributes['data-' .. name]
+end
+
+-- Pandoc represents <mark> as a Span with a synthetic "mark" class and
+-- would otherwise write it as a generic <span> in GFM and drop it from Org.
+-- Keep the source representation semantic and portable: Asana's fixed yellow
+-- clipboard attributes are an output concern handled by the writer below.
+-- Each writer ignores the raw-inline variant intended for the other format.
+local function raw_highlight (span)
+  local inlines = {
+    pandoc.RawInline('html', '<mark>'),
+    pandoc.RawInline('org', '@@html:<mark>@@'),
+  }
+  for _, inline in ipairs(span.content) do
+    inlines[#inlines + 1] = inline
+  end
+  inlines[#inlines + 1] = pandoc.RawInline('html', '</mark>')
+  inlines[#inlines + 1] = pandoc.RawInline('org', '@@html:</mark>@@')
+  return inlines
+end
+
+-- Asana distinguishes a canonical object link from a custom-text link by
+-- omitting data-title from the former's clipboard span.  Org and GFM have no
+-- native place to retain that distinction, so carry it in a private query
+-- parameter and remove the parameter again in the writer.
+local ASANA_DYNAMIC_MARKER = '__rich_text_asana_dynamic=1'
+
+local function mark_dynamic_asana_link (target)
+  local url, fragment = target:match('^(.-)(#.*)$')
+  if not url then url, fragment = target, '' end
+  local separator = url:find('?', 1, true) and '&' or '?'
+  if url:match('[?&]$') then separator = '' end
+  return url .. separator .. ASANA_DYNAMIC_MARKER .. fragment
+end
+
+local function unmark_dynamic_asana_link (target)
+  local url, fragment = target:match('^(.-)(#.*)$')
+  if not url then url, fragment = target, '' end
+  local count
+  url, count = url:gsub('([?&])' .. ASANA_DYNAMIC_MARKER .. '$', '')
+  return url .. fragment, count > 0
+end
+
+local function tidy_span (span)
+  for _, class in ipairs(span.classes) do
+    if class == 'mark' or class:match('highlight') then
+      return raw_highlight(span)
+    end
+  end
+  if data_attribute(span, 'asana-object')
+      and not data_attribute(span, 'title')
+      and #span.content == 1
+      and span.content[1].t == 'Link' then
+    span.content[1].target =
+      mark_dynamic_asana_link(span.content[1].target)
+  end
+  return span.content
+end
+
+-- Asana puts inline images on the clipboard as empty divs carrying asset
+-- metadata rather than as <img> elements with a URL.  Represent one as a
+-- normal, deliberately broken image whose synthetic URI retains that
+-- metadata.  Ending the URI in image.png is significant: it lets the Org
+-- reader recognize the bare [[...]] link emitted by its writer as an image
+-- again.  Other divs are ordinary editor scaffolding and can be unwrapped.
+local function unwrap_div (div)
+  for _, class in ipairs(div.classes) do
+    if class == 'ProsemirrorEditor-inlineAsset' then
+      local asset = data_attribute(div, 'asana-image-asset-id')
+      if asset then
+        local domain = data_attribute(div, 'asana-image-domain-id') or '-'
+        local width = data_attribute(div, 'width') or '-'
+        local height = data_attribute(div, 'height') or '-'
+        local ratio = data_attribute(div, 'resize-ratio') or '-'
+        local uri = ('asana-asset:%s/%s/%sx%s@%s/image.png')
+          :format(domain, asset, width, height, ratio)
+        return pandoc.Para{pandoc.Image('Asana inline image', uri)}
+      end
+    end
+  end
+  return div.content
+end
+
 local tidy = {
   -- Web apps use <br> where markup formats want plain flowing text; a line
   -- break anywhere in a cell also disqualifies its table (see above), so
@@ -229,6 +315,8 @@ local tidy = {
   Header      = clear_attr,
   Code        = clear_attr,
   CodeBlock   = clear_attr,
+  Span        = tidy_span,
+  Div         = unwrap_div,
   BulletList  = tighten,
   OrderedList = tighten,
   Table       = tidy_table,
@@ -237,16 +325,16 @@ local tidy = {
 ------------------------------------------------------------------------
 --- The reader.
 --
--- Disabling native_spans/native_divs drops the styling <span>/<div> wrappers
--- web apps litter their markup with (e.g. Asana's data-* mention spans),
--- keeping only the content.
+-- Parse native <span>/<div> elements so the tidy filter can discard the
+-- wrappers web apps litter their markup with while preserving meaningful
+-- spans such as highlights.
 
 function Reader (input, _opts)
   local html = tostring(input)
   if html:find('data-list-indent', 1, true) then
     html = rebuild_flat_lists(html)
   end
-  return pandoc.read(html, 'html-native_spans-native_divs'):walk(tidy)
+  return pandoc.read(html, 'html+native_spans+native_divs'):walk(tidy)
 end
 
 ------------------------------------------------------------------------
@@ -261,6 +349,22 @@ end
 -- fragment's first element with data-pm-slice -- ProseMirror's editor-native
 -- marker, which routes the paste through the trusting parser instead of the
 -- sanitizer.  Other paste targets ignore the unknown attributes.
+
+local ASANA_HIGHLIGHT_OPEN =
+  '<mark data-highlight-color="yellow"'
+  .. ' class="ProsemirrorEditor-highlight'
+  .. ' ProsemirrorEditor-highlight--yellow"'
+  .. ' style="background-color:'
+  .. ' var(--color-richtext-highlight-background, #feedd9);">'
+
+-- Markdown and Org deliberately store a plain semantic <mark>.  Asana's
+-- clipboard parser expects the editor-specific form it originally supplied,
+-- so restore that form only at the output boundary.
+local function asana_highlight (raw)
+  if raw.format == 'html' and raw.text == '<mark>' then
+    return pandoc.RawInline('html', ASANA_HIGHLIGHT_OPEN)
+  end
+end
 
 -- The object GID of an app.asana.com PATH: its last whole segment of two or
 -- more digits, ignoring query and fragment.  (The leading /0/ or /1/ is the
@@ -279,23 +383,64 @@ local function asana_gid (path)
 end
 
 -- Wrap LINK in the <span> markup Asana's editor itself puts on the
--- clipboard for links to Asana objects: data-object-id is the object's GID,
--- data-preferred-path the URL sans origin, and data-title the link text as
--- plain text.  Links to anything else are kept as they are.
+-- clipboard for links to Asana objects: data-object-id is the object's GID
+-- and data-preferred-path is the URL sans origin.  Custom-text links also
+-- carry data-title; canonical links arrive here with the private marker added
+-- by the reader, so omit data-title for them.  Links to anything else are
+-- kept as they are.
 local function object_link_span (link)
-  local path = link.target:match('^https?://app%.asana%.com(/.*)$')
+  local target, dynamic = unmark_dynamic_asana_link(link.target)
+  local path = target:match('^https?://app%.asana%.com(/.*)$')
   local gid = path and asana_gid(path)
   if not gid then return nil end
-  return pandoc.Span({link}, pandoc.Attr('', {}, {
+  link.target = target
+  local attributes = {
     { 'data-asana-object',   '1' },
     { 'data-object-id',      gid },
     { 'data-preferred-path', path },
-    { 'data-title',          pandoc.utils.stringify(link.content) },
-  }))
+  }
+  if not dynamic then
+    attributes[#attributes + 1] =
+      { 'data-title', pandoc.utils.stringify(link.content) }
+  end
+  return pandoc.Span({link}, pandoc.Attr('', {}, attributes))
+end
+
+-- Turn the synthetic image produced by the reader back into the empty div
+-- Asana placed on the clipboard.  URI fields are deliberately restricted to
+-- characters which are safe in quoted HTML attributes.
+local function asana_asset_div (block)
+  if #block.content ~= 1 or block.content[1].t ~= 'Image' then return nil end
+  local domain, asset, width, height, ratio =
+    block.content[1].src:match(
+      '^asana%-asset:([%w._~-]+)/([%w._~-]+)/([%w._~-]+)x'
+      .. '([%w._~-]+)@([%w._~-]+)/image%.png$')
+  if not asset then return nil end
+
+  local html = {
+    '<div class="ProsemirrorEditor-inlineAsset"',
+    (' data-asana-image-asset-id="%s"'):format(asset),
+  }
+  local function add_attribute (name, value)
+    if value ~= '-' then
+      html[#html + 1] = (' %s="%s"'):format(name, value)
+    end
+  end
+  add_attribute('data-height', height)
+  add_attribute('data-width', width)
+  add_attribute('data-resize-ratio', ratio)
+  add_attribute('data-asana-image-domain-id', domain)
+  html[#html + 1] = '></div>'
+  return pandoc.RawBlock('html', table.concat(html))
 end
 
 function Writer (doc, opts)
-  local html = pandoc.write(doc:walk{ Link = object_link_span }, 'html', opts)
+  local html = pandoc.write(doc:walk{
+    RawInline = asana_highlight,
+    Link      = object_link_span,
+    Para      = asana_asset_div,
+    Plain     = asana_asset_div,
+  }, 'html', opts)
   -- Mark the fragment as editor-native content.
   return (html:gsub('^(%s*<%a[%w]*)', '%1 data-pm-slice="0 0 []"', 1))
 end
