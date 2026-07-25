@@ -289,7 +289,6 @@
   (add-hook
    hook
    (lambda ()
-     (require 'js2-mode)
      (electric-indent-local-mode -1)
      (keymap-local-set "<tab>" #'js2-indent-bounce))))
 
@@ -354,41 +353,26 @@
 (use-package org
   :ensure nil
   :demand t
-  :mode ("\\.org\\'" . org-mode)
   :bind (("C-c l" . org-store-link)
          ("C-c a" . org-agenda))
   :hook (org-mode . visual-line-mode)
-  :config
+  :init
   (setq org-log-done t
-        org-agenda-files '("~/Davebox/todo-org/todo.org"))
-  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+        org-agenda-files '("~/Davebox/todo-org/todo.org")
+        org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
                             (sequence "WAITING(w@/!)" "CANCELLED(c@/!)"))
         org-todo-keyword-faces '(("TODO" . (:foreground "black" :weight bold))
                                  ("NEXT" . (:foreground "red" :weight bold))
                                  ("WAITING" . (:foreground "orange" :weight bold))
                                  ("DONE" . (:foreground "forest green" :weight bold))
                                  ("CANCELLED" . (:foreground "forest green" :weight bold)))
-        org-log-reschedule t
+        org-log-reschedule 'time
         org-todo-repeat-to-state t
-        calendar-week-start-day 1)
-  (setq org-log-state-notes-into-drawer t)
-  (setq org-archive-location "%s_archive::"
-        org-archive-subtree-save-file-p t)
-  (setq org-startup-indented t
-        org-src-fontify-natively t
-        org-latex-listings 'minted
-        org-latex-pdf-process
-        '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-  (add-to-list 'org-latex-packages-alist '("" "minted"))
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (clojure . t)
-     (python . t)
-     (js . t)))
-  (require 'ox-md nil t)
-  (require 'ox-odt nil t)
-  (require 'ox-publish nil t))
+        calendar-week-start-day 1
+        org-log-state-notes-into-drawer t
+        org-archive-subtree-save-file-p t
+        org-startup-indented t
+        org-export-backends '(html md)))
 
 (use-package ol-notmuch
   :after org
