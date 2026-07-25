@@ -89,9 +89,9 @@
 ;; Completion UI
 (use-package vertico
   :init (vertico-mode)
-  :bind (:map vertico-map
-              ("C-c g" . kzar/minibuffer-enter-magit))
-  :custom (vertico-cycle t))
+  :custom (vertico-cycle t)
+  :config
+  (keymap-set vertico-map "C-c g" (kbd "C-. g")))
 
 (use-package vertico-directory
   :ensure nil
@@ -107,6 +107,65 @@
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
+;; Search and navigation.
+(use-package consult
+  :commands (consult-fd consult-ripgrep)
+  :defines consult-source-buffer
+  :bind (("C-x b" . consult-buffer)
+         ("M-y"   . consult-yank-pop)
+         ("M-g g" . consult-goto-line)
+         ("M-g i" . consult-imenu)
+         ("M-g f" . consult-flymake)
+         ("M-s l" . consult-line)
+         ("M-s r" . consult-ripgrep))
+  :custom
+  (consult-buffer-sources '(consult-source-buffer))
+  :init
+  (setopt xref-search-program 'ripgrep
+          xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
+  :config
+  (setf (plist-get consult-source-buffer :name) nil))
+
+;; Actions for completion candidates and things at point.
+(use-package embark
+  :bind (("C-." . embark-act))
+  :config
+  (keymap-set
+   embark-file-map "g"
+   (lambda (path)
+     "Open Magit for PATH or the directory containing it."
+     (interactive "fPath: ")
+     (let ((path (expand-file-name path)))
+       (magit-status-setup-buffer
+        (if (file-directory-p path)
+            path
+          (file-name-directory path)))))))
+
+(use-package embark-consult
+  :after (embark consult))
+
+(defvar consult-fd-args)
+(defun kzar/project-find-dir ()
+  (interactive)
+  (let ((consult-fd-args
+         '((if (executable-find "fdfind" 'remote) "fdfind" "fd")
+           "--full-path --color=never --type=d")))
+    (consult-fd)))
+
+(with-eval-after-load 'project
+  (keymap-set project-prefix-map "f" #'consult-fd)
+  (keymap-set project-prefix-map "g" #'consult-ripgrep)
+  (keymap-set project-prefix-map "d" #'kzar/project-find-dir)
+  (keymap-set project-prefix-map "m" #'magit-project-status)
+  (when-let ((e (assq 'project-find-file   project-switch-commands)))
+    (setcar e #'consult-fd))
+  (when-let ((e (assq 'project-find-regexp project-switch-commands)))
+    (setcar e #'consult-ripgrep))
+  (when-let ((e (assq 'project-find-dir    project-switch-commands)))
+    (setcar e #'kzar/project-find-dir))
+  (add-to-list 'project-switch-commands '(magit-project-status "Magit") t))
+
 ;; In-buffer completion UI
 (use-package corfu
   :init (global-corfu-mode)
@@ -119,41 +178,6 @@
 (use-package cape
   :init
   (add-hook 'completion-at-point-functions #'cape-file t))
-
-;; Project file/directory searching.
-(use-package affe
-  :commands (affe-find affe-grep)
-  :config
-  (setq affe-find-command "rg --color=never --files"))
-
-(defun kzar/project-root-or-default ()
-  (if-let* ((proj (project-current))) (project-root proj) default-directory))
-
-(defun kzar/project-find-file ()
-  (interactive)
-  (affe-find (kzar/project-root-or-default)))
-
-(defun kzar/project-grep ()
-  (interactive)
-  (affe-grep (kzar/project-root-or-default)))
-
-(defun kzar/project-find-dir ()
-  (interactive)
-  (let ((affe-find-command "fd --type d --color=never"))
-    (affe-find (kzar/project-root-or-default))))
-
-(with-eval-after-load 'project
-  (keymap-set project-prefix-map "f" #'kzar/project-find-file)
-  (keymap-set project-prefix-map "g" #'kzar/project-grep)
-  (keymap-set project-prefix-map "d" #'kzar/project-find-dir)
-  (keymap-set project-prefix-map "m" #'magit-project-status)
-  (when-let ((e (assq 'project-find-file   project-switch-commands)))
-    (setcar e #'kzar/project-find-file))
-  (when-let ((e (assq 'project-find-regexp project-switch-commands)))
-    (setcar e #'kzar/project-grep))
-  (when-let ((e (assq 'project-find-dir    project-switch-commands)))
-    (setcar e #'kzar/project-find-dir))
-  (add-to-list 'project-switch-commands '(magit-project-status "Magit") t))
 
 ;; Zap up to (not including) a char.
 (keymap-global-set "M-z" #'zap-up-to-char)

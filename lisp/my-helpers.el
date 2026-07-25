@@ -48,31 +48,6 @@
         (delete-trailing-whitespace (region-beginning) (region-end)))
       (pop-mark))))
 
-(defun kzar/minibuffer-enter-magit ()
-  "Abort the file/buffer prompt and open `magit-status' for the currently
-   selected directory."
-  (interactive)
-  (let ((orig-bell ring-bell-function))
-    ;; Aborting the prompt raises a quit, which rings the bell and echoes "Quit"
-    ;; at that instant -- so clearing the text afterwards isn't enough.  Silence
-    ;; the bell across the abort; the timer restores it and clears the echo.
-    (setq ring-bell-function #'ignore)
-    (let* ((typed (expand-file-name (minibuffer-contents)))
-           (path (if (file-directory-p typed)
-                     typed
-                   (expand-file-name
-                    (if (bound-and-true-p vertico--input)
-                        (vertico--candidate)
-                      (minibuffer-contents)))))
-           (dir (if (file-directory-p path)
-                    (file-name-as-directory path)
-                  (file-name-directory path))))
-      (run-with-timer 0 nil (lambda ()
-                              (setq ring-bell-function orig-bell)
-                              (message nil)
-                              (magit-status dir)))
-      (minibuffer-quit-recursive-edit))))
-
 (defun kzar/setup-linux-fonts ()
   "Use Symbola for Unicode glyphs and set the default font height."
   (when (member "Symbola" (font-family-list))
