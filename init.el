@@ -59,6 +59,11 @@
 (global-auto-revert-mode 1)
 (global-so-long-mode 1)
 
+(editorconfig-mode 1)
+(winner-mode 1)
+(repeat-mode 1)
+(kill-ring-deindent-mode 1)
+
 ;; Highlight matching parens green.
 (show-paren-mode 1)
 (setq show-paren-delay 0
