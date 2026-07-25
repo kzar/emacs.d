@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t; -*-
 
+(setq auth-sources '(macos-keychain-internet))
+
 ; Get Emacs Client working (kinda, sorta)
 (require 'server)
 (unless (server-running-p)

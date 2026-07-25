@@ -2,6 +2,7 @@
 
 (require 'cl-lib)
 
+(defvar auth-sources)
 (defvar browse-url-firefox-program nil)
 
 (defvar kzar/gui-frame-hook nil
@@ -63,7 +64,8 @@
   "Configure the common font and browser settings for Linux desktops."
   (add-hook 'kzar/gui-frame-hook #'kzar/setup-linux-fonts)
   (setq browse-url-browser-function 'browse-url-firefox
-        browse-url-firefox-program "~/firefox/dev/firefox"))
+        browse-url-firefox-program "~/firefox/dev/firefox"
+        auth-sources '(default)))
 
 (provide 'my-helpers)
 ;;; my-helpers.el ends here

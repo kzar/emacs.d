@@ -27,7 +27,6 @@
     (add-to-list 'load-path (expand-file-name dir user-emacs-directory))))
 (require 'my-helpers)
 (require 'rich-text)
-(load "~/.emacs.d/my-secrets.el")
 
 ;; Set my username etc.
 (setq user-full-name "Dave Vandyke"
@@ -384,13 +383,26 @@
 ;; IRC
 (setq rcirc-default-nick "kzar"
       rcirc-default-full-name "Dave Vandyke"
-      rcirc-authinfo
-      `(("libera" nickserv "kzar" ,(format "%s %s" "kzar" libera-password))
-        ("oftc" nickserv "kzar" ,(format "%s %s" oftc-password "kzar")))
       rcirc-server-alist
-      `(("irc.libera.chat" :port 6697 :encryption tls)
-        ("irc.oftc.net" :port 6697 :encryption tls)))
-(rcirc-track-minor-mode 1)
+      `(("irc.libera.chat" :port 6697 :encryption tls :password "")
+        ("irc.oftc.net" :port 6697 :encryption tls :password "")))
+
+(with-eval-after-load 'rcirc
+  (setq rcirc-authinfo
+        (condition-case nil
+            (when-let* ((libera-password
+                         (auth-source-pick-first-password
+                          :host "irc.libera.chat" :user "kzar"))
+                        (oftc-password
+                         (auth-source-pick-first-password
+                          :host "irc.oftc.net" :user "kzar")))
+              `(("libera" nickserv "kzar"
+                 ,(format "%s %s" "kzar" libera-password))
+                ("oftc" nickserv "kzar"
+                 ,(format "%s %s" oftc-password "kzar"))))
+          ((error quit) nil)))
+  (rcirc-track-minor-mode 1))
+
 (add-hook 'rcirc-mode-hook
           (lambda ()
             (jinx-mode 1)

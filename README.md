@@ -27,7 +27,18 @@ My personal Emacs configuration. Mostly here for my own convenience although fee
 Again more for me but here's how I use this repo:
 
       git clone git@github.com:kzar/emacs.d.git ~/.emacs.d
-      cp ~/.emacs.d/my-secrets.el.sample ~/.emacs.d/my-secrets.el
+
+      # Fedora KDE
+      secret-tool store --label='IRC Libera' host irc.libera.chat user kzar
+      secret-tool store --label='IRC OFTC' host irc.oftc.net user kzar
+
+      # macOS
+      security add-internet-password -U -a kzar -s irc.libera.chat -w
+      security add-internet-password -U -a kzar -s irc.oftc.net -w
+
+      # Other machines - put credentials in `~/.authinfo.gpg`:
+      machine irc.libera.chat login kzar password LIBERA_PASSWORD
+      machine irc.oftc.net login kzar password OFTC_PASSWORD
 
 ## Resources
 
