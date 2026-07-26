@@ -9,9 +9,6 @@
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
 
 (require 'use-package)
 (setq use-package-always-ensure t)
@@ -21,7 +18,9 @@
   (dolist (dir '("lisp" "lisp/rich-text"))
     (add-to-list 'load-path (expand-file-name dir user-emacs-directory))))
 (require 'my-helpers)
-(require 'rich-text)
+(use-package rich-text
+  :ensure nil
+  :commands (rich-text/copy-buffer rich-text/copy-region rich-text/yank))
 
 ;; Set my username etc.
 (setq user-full-name "Dave Vandyke"
@@ -372,8 +371,7 @@
         org-export-backends '(html md)))
 
 (use-package ol-notmuch
-  :after org
-  :demand t)
+  :after notmuch)
 
 ;; IRC
 (setq rcirc-default-nick "kzar"
@@ -408,7 +406,7 @@
 
 ;; Manually-invoked tools.
 (use-package php-mode :defer t)
-(use-package notmuch  :defer t)
+(use-package notmuch :commands notmuch)
 
 ;; Misc keybindings.
 (keymap-global-set "C-c SPC" #'kzar/indent-rectangle)
