@@ -28,6 +28,11 @@ so Asana's paste parser keeps links and their text intact.")
 
 ;;; The system clipboard, in and out.
 
+;; TODO: Remove the platform-specific copy/paste code once Emacs has native
+;;       support for copying/pasting rich text:
+;; - Reading is already available with `gui-get-selection'.
+;; - Writing does not yet seem available as of Emacs 31.
+
 (defun rich-text/html-to-clipboard (html)
   "Put the HTML fragment on the system clipboard as text/html, cross-platform.
 Web editors like Asana read the HTML flavour on paste; an RTF-only clipboard
