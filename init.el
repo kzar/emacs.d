@@ -5,11 +5,6 @@
 (setq custom-file "~/.emacs.d/my-custom.el")
 (load custom-file t)
 
-;; Load Debian site packages (where relevant) early.
-(let ((debian-startup "/usr/share/emacs/site-lisp/debian-startup.el"))
-  (when (file-exists-p debian-startup)
-    (load-file debian-startup)))
-
 ;; Setup packages.
 (require 'package)
 (add-to-list 'package-archives

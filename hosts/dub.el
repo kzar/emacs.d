@@ -1,3 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
 
-(call-interactively 'irc)
+(load-theme 'modus-vivendi t)
+(setq epg-pinentry-mode 'loopback)
+
