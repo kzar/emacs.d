@@ -282,6 +282,12 @@
          ("C-x M-g" . magit-dispatch))
   :custom (magit-diff-refine-hunk t))
 
+;; Don't display tags, it's too slow for large repositories.
+(with-eval-after-load 'magit-status
+  (remove-hook 'magit-status-headers-hook #'magit-insert-tags-header))
+(with-eval-after-load 'magit-refs
+  (remove-hook 'magit-refs-sections-hook #'magit-insert-tags))
+
 ;; Languages
 
 ;; Tree-sitter
