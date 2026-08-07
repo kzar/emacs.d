@@ -280,7 +280,11 @@
 (use-package magit
   :bind (("C-c g" . magit-status)
          ("C-x M-g" . magit-dispatch))
-  :custom (magit-diff-refine-hunk t))
+  :custom ((magit-diff-refine-hunk t)
+           (magit-revision-insert-related-refs-display-alist
+            ;; Don't display "Follows:" and "Precedes:" for revisions, it's too
+            ;; slow for large repositories.
+            '((follows . nil) (precedes . nil)))))
 
 ;; Don't display tags, it's too slow for large repositories.
 (with-eval-after-load 'magit-status
