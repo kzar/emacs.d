@@ -145,27 +145,6 @@
 (use-package embark-consult
   :after (embark consult))
 
-(defvar consult-fd-args)
-(defun kzar/project-find-dir ()
-  (interactive)
-  (let ((consult-fd-args
-         '((if (executable-find "fdfind" 'remote) "fdfind" "fd")
-           "--full-path --color=never --type=d")))
-    (consult-fd)))
-
-(with-eval-after-load 'project
-  (keymap-set project-prefix-map "f" #'consult-fd)
-  (keymap-set project-prefix-map "g" #'consult-ripgrep)
-  (keymap-set project-prefix-map "d" #'kzar/project-find-dir)
-  (keymap-set project-prefix-map "m" #'magit-project-status)
-  (when-let ((e (assq 'project-find-file   project-switch-commands)))
-    (setcar e #'consult-fd))
-  (when-let ((e (assq 'project-find-regexp project-switch-commands)))
-    (setcar e #'consult-ripgrep))
-  (when-let ((e (assq 'project-find-dir    project-switch-commands)))
-    (setcar e #'kzar/project-find-dir))
-  (add-to-list 'project-switch-commands '(magit-project-status "Magit") t))
-
 ;; In-buffer completion UI.
 (use-package corfu
   :defer t
@@ -188,6 +167,64 @@
 (use-package cape
   :init
   (add-hook 'completion-at-point-functions #'cape-file t))
+
+;; Projects
+
+;; Faster searching within projects using fd/ripgrep.
+(defvar consult-fd-args)
+(defun kzar/project-find-dir ()
+  (interactive)
+  (let ((consult-fd-args
+         '((if (executable-find "fdfind" 'remote) "fdfind" "fd")
+           "--full-path --color=never --type=d")))
+    (consult-fd)))
+
+(with-eval-after-load 'project
+  (keymap-set project-prefix-map "f" #'consult-fd)
+  (keymap-set project-prefix-map "g" #'consult-ripgrep)
+  (keymap-set project-prefix-map "d" #'kzar/project-find-dir)
+  (keymap-set project-prefix-map "m" #'magit-project-status)
+  (when-let ((e (assq 'project-find-file   project-switch-commands)))
+    (setcar e #'consult-fd))
+  (when-let ((e (assq 'project-find-regexp project-switch-commands)))
+    (setcar e #'consult-ripgrep))
+  (when-let ((e (assq 'project-find-dir    project-switch-commands)))
+    (setcar e #'kzar/project-find-dir))
+  (add-to-list 'project-switch-commands '(magit-project-status "Magit") t))
+
+;; Ensure gclient managed projects (e.g. Chromium) are treated as one project.
+(defvar kzar/gclient-root-cache (make-hash-table :test 'equal))
+
+(defun kzar/gclient-calculate-root (vc-root)
+  (when-let* ((gclient-root (locate-dominating-file vc-root ".gclient"))
+              (solution-name (car (split-string
+                                   (file-relative-name vc-root gclient-root)
+                                   "/" t)))
+              (source-root (file-name-as-directory
+                            (expand-file-name solution-name gclient-root))))
+    (and (file-exists-p (expand-file-name ".git" source-root))
+         source-root)))
+
+(defun kzar/gclient-root (vc-root)
+  (or (gethash vc-root kzar/gclient-root-cache)
+      (puthash vc-root
+               (or (and (not (file-remote-p vc-root))
+                        (kzar/gclient-calculate-root vc-root))
+                   vc-root)
+               kzar/gclient-root-cache)))
+
+(defun kzar/gclient-project (dir)
+  (when-let* ((vc-project (project-try-vc dir))
+              (vc-root (and (eq (nth 1 vc-project) 'Git) (nth 2 vc-project)))
+              (source-root (kzar/gclient-root vc-root)))
+    (unless (equal source-root vc-root) (list 'vc 'Git source-root))))
+
+(with-eval-after-load 'project
+  (add-hook 'project-find-functions #'kzar/gclient-project -10))
+
+;; Resolve symlinks when opening files, to ensure they are grouped by project
+;; consistently.
+(setq find-file-visit-truename t)
 
 ;; Zap up to (not including) a char.
 (keymap-global-set "M-z" #'zap-up-to-char)
@@ -424,7 +461,7 @@
 (dir-locals-set-class-variables
  'duckduckgo-directory
  '((nil . ((js-indent-level . 4)))))
-(dir-locals-set-directory-class "~/work/duckduckgo/" 'duckduckgo-directory)
+(dir-locals-set-directory-class "~/Davebox/work/duckduckgo/" 'duckduckgo-directory)
 (add-to-list 'auto-mode-alist '("/duckduckgo-privacy-extension/build/.*" .
                                 fundamental-mode))
 
