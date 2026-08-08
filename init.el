@@ -308,7 +308,20 @@
   :ensure nil
   :hook ((typescript-ts-mode tsx-ts-mode js-ts-mode
           rust-ts-mode c-ts-mode c++-ts-mode) . eglot-ensure)
-  :custom (eglot-autoshutdown t))
+  :custom (eglot-autoshutdown t)
+  :config
+  (add-to-list 'eglot-server-programs
+               `((c-mode c-ts-mode c++-mode c++-ts-mode objc-mode)
+                 . ("clangd"
+                    ;; Throttle clangd background indexing, can be slow for
+                    ;; large repos.
+                    ,(format "-j=%d" (max 1 (/ (num-processors) 2)))
+                    "--background-index-priority=background"
+                    ;; Recommended for Chromium, wrong headers are sometimes
+                    ;; inserted.
+                    "--header-insertion=never"
+                    ;; Keep clangd output in Eglot buffer quiet.
+                    "--log=error"))))
 
 (use-package eldoc-box
   :hook (eglot-managed-mode . eldoc-box-hover-mode))

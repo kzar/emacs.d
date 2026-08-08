@@ -9,5 +9,10 @@ Environment=SSH_AUTH_SOCK=%t/keyring/ssh
 Restart=always
 TimeoutStartSec=infinity
 
+# If a process spawned by Emacs (e.g. clangd language server) uses too much RAM,
+# take care to kill that but keep the Emacs server itself running.
+MemoryMax=70%
+OOMPolicy=continue
+
 [Install]
 WantedBy=default.target
