@@ -15,7 +15,7 @@
 
 ;; Load local libraries.
 (eval-and-compile
-  (dolist (dir '("lisp" "lisp/rich-text"))
+  (dolist (dir '("lisp" "lisp/rich-text" "lisp/chromium"))
     (add-to-list 'load-path (expand-file-name dir user-emacs-directory))))
 (require 'my-helpers)
 (use-package rich-text
@@ -250,6 +250,9 @@
 (setq display-fill-column-indicator-column t)
 (setq-default fill-column 80)
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+;; Ensure it applies to code files, even if there's no applicable major mode.
+(dolist (pattern '("\\.webidl\\'" "/OWNERS\\'"))
+  (add-to-list 'auto-mode-alist (cons pattern #'prog-mode)))
 
 ;; Spell-checking
 (use-package jinx
@@ -298,14 +301,43 @@
 
 ;; Languages
 
+;; Fall back to JSON mode until the JSON5 tree-sitter grammar is installed.
+(define-derived-mode json5-mode js-json-mode "JSON5"
+  "Major mode for editing JSON5 without tree-sitter support.")
+
+(use-package json5-ts-mode
+  :commands json5-ts-mode
+  :init
+  (add-to-list 'auto-mode-alist '("\\.json5\\'" . json5-mode)))
+
 ;; Tree-sitter
 (use-package treesit-auto
   :custom (treesit-auto-install 'prompt)
   :config
+  (add-to-list
+   'treesit-auto-recipe-list
+   (make-treesit-auto-recipe
+    :lang 'json5
+    :ts-mode 'json5-ts-mode
+    :remap 'json5-mode
+    :url "https://github.com/Joakker/tree-sitter-json5"
+    :ext "\\.json5\\'"))
   (setq treesit-auto-langs
-        '(bash c cpp css javascript json python rust tsx typescript yaml))
+        '(bash c cpp css javascript json json5 python rust tsx typescript yaml))
   (global-treesit-auto-mode))
 (setq treesit-font-lock-level 4)
+
+;; Chromium-maintained language modes, vendored under lisp/chromium/.
+(use-package gn-mode
+  :ensure nil
+  :mode ("\\.gni?\\'" . gn-mode))
+(use-package mojom-mode
+  :ensure nil
+  :mode ("\\.\\(?:test-\\)?mojom\\'" . mojom-mode))
+(use-package protobuf-mode
+  :mode ("\\.proto\\'" . protobuf-mode))
+(use-package bazel
+  :mode ("\\.star\\'" . bazel-starlark-mode))
 
 ;; LSP
 (use-package eglot
@@ -364,6 +396,8 @@
 
 ;; Python
 (setq python-indent-offset 2)
+(add-to-list 'auto-mode-alist
+             '("/\\(?:DEPS\\|WATCHLISTS\\)\\'" . python-mode))
 
 ;; Stop inferior shells from echoing input twice.
 (defun echo-false-comint ()
