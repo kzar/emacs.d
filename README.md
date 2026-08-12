@@ -22,6 +22,20 @@ My personal Emacs configuration. Mostly here for my own convenience although fee
 - [`pandoc`](https://pandoc.org/)
 - [`wl-clipboard`](https://github.com/bugaevc/wl-clipboard) or [`xclip`](https://github.com/astrand/xclip) on Linux
 
+### Installing dependencies
+
+```sh
+# Assuming Node.js and Emacs are already installed...
+
+npm install --global typescript typescript-language-server
+
+# Fedora
+sudo dnf install ripgrep fd-find gcc enchant2-devel enchant2-aspell aspell-en pkgconf-pkg-config clang-tools-extra rust-analyzer pandoc-cli wl-clipboard
+
+# macOS
+brew install ripgrep fd enchant pkgconf llvm rust-analyzer pandoc
+```
+
 ## Usage
 
 Again more for me but here's how I use this repo:

@@ -33,7 +33,11 @@
 
 (prefer-coding-system 'utf-8)
 
-(dolist (dir '("/opt/homebrew/bin" "/usr/local/bin" "~/.cargo/bin"))
+(dolist (dir '("/opt/homebrew/bin"
+               "/opt/homebrew/opt/llvm/bin"
+               "/usr/local/bin"
+               "/usr/local/opt/llvm/bin"
+               "~/.cargo/bin"))
   (let ((dir (expand-file-name dir)))
     (when (file-directory-p dir)
       (add-to-list 'exec-path dir)
