@@ -28,8 +28,7 @@
 
 ;; Editor basics.
 (setq inhibit-splash-screen t
-      initial-scratch-message ";; Hello Dave\n"
-      initial-major-mode 'org-mode)
+      initial-scratch-message ";; Hello Dave\n")
 
 (prefer-coding-system 'utf-8)
 
@@ -446,7 +445,6 @@
 ;; org-mode
 (use-package org
   :ensure nil
-  :demand t
   :bind (("C-c l" . org-store-link)
          ("C-c a" . org-agenda))
   :hook (org-mode . visual-line-mode)
