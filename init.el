@@ -364,7 +364,8 @@
 (use-package eldoc-box
   :hook (eglot-managed-mode . eldoc-box-hover-mode))
 (use-package breadcrumb
-  :hook (prog-mode . breadcrumb-local-mode))
+  :hook (eglot-managed-mode .
+         (lambda () (breadcrumb-local-mode (if (eglot-managed-p) 1 -1)))))
 
 ;; Clojure / ClojureScript
 (use-package clojure-mode
