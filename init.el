@@ -36,7 +36,8 @@
                "/opt/homebrew/opt/llvm/bin"
                "/usr/local/bin"
                "/usr/local/opt/llvm/bin"
-               "~/.cargo/bin"))
+               "~/.cargo/bin"
+               "~/Davebox/work/personal/chromium/depot_tools"))
   (let ((dir (expand-file-name dir)))
     (when (file-directory-p dir)
       (add-to-list 'exec-path dir)
