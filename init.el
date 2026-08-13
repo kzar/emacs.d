@@ -344,7 +344,9 @@
   :ensure nil
   :hook ((typescript-ts-mode tsx-ts-mode js-ts-mode
           rust-ts-mode c-ts-mode c++-ts-mode) . eglot-ensure)
-  :custom (eglot-autoshutdown t)
+  :custom ((eglot-autoshutdown t)
+           ;; Don't log LSP events, too slow with clangd on large projects.
+           (eglot-events-buffer-config '(:size 0)))
   :config
   (add-to-list 'eglot-server-programs
                `((c-mode c-ts-mode c++-mode c++-ts-mode objc-mode)
