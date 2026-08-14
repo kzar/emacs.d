@@ -339,6 +339,22 @@
   :mode ("\\.star\\'" . bazel-starlark-mode))
 
 ;; LSP
+(defun kzar/eglot-clangd-command (_interactive project)
+  ;; Use bundled clangd for Chromium, otherwise the system version.
+  (let ((project-clangd
+         (expand-file-name
+          "third_party/llvm-build/Release+Asserts/bin/clangd"
+          (project-root project))))
+    (list (if (file-exists-p project-clangd) project-clangd "clangd")
+          ;; Throttle clangd background indexing, which can be slow for large
+          ;; repos.
+          (format "-j=%d" (max 1 (/ (num-processors) 2)))
+          "--background-index-priority=background"
+          ;; Recommended for Chromium; wrong headers are sometimes inserted.
+          "--header-insertion=never"
+          ;; Keep clangd output in the Eglot buffer quiet.
+          "--log=error")))
+
 (use-package eglot
   :ensure nil
   :hook ((typescript-ts-mode tsx-ts-mode js-ts-mode
@@ -348,17 +364,8 @@
            (eglot-events-buffer-config '(:size 0)))
   :config
   (add-to-list 'eglot-server-programs
-               `((c-mode c-ts-mode c++-mode c++-ts-mode objc-mode)
-                 . ("clangd"
-                    ;; Throttle clangd background indexing, can be slow for
-                    ;; large repos.
-                    ,(format "-j=%d" (max 1 (/ (num-processors) 2)))
-                    "--background-index-priority=background"
-                    ;; Recommended for Chromium, wrong headers are sometimes
-                    ;; inserted.
-                    "--header-insertion=never"
-                    ;; Keep clangd output in Eglot buffer quiet.
-                    "--log=error"))))
+               '((c-mode c-ts-mode c++-mode c++-ts-mode objc-mode)
+                 . kzar/eglot-clangd-command)))
 
 (use-package eldoc-box
   :hook (eglot-managed-mode .
