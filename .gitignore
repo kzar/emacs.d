@@ -16,4 +16,5 @@ eln-cache/
 org-persist/
 /history
 /places
+/projects
 /tree-sitter/
