@@ -362,7 +362,8 @@
                     "--log=error"))))
 
 (use-package eldoc-box
-  :hook (eglot-managed-mode . eldoc-box-hover-mode))
+  :hook (eglot-managed-mode .
+         (lambda () (eldoc-box-hover-mode (if (eglot-managed-p) 1 -1)))))
 (use-package breadcrumb
   :hook (eglot-managed-mode .
          (lambda () (breadcrumb-local-mode (if (eglot-managed-p) 1 -1)))))
