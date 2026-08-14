@@ -519,15 +519,6 @@
            (gcmh-auto-idle-delay-factor 10)
            (gcmh-high-cons-threshold (* 64 1024 1024))))
 
-;; DuckDuckGo-specific rules.
-(add-to-list 'safe-local-variable-values '(js-indent-level . 4))
-(dir-locals-set-class-variables
- 'duckduckgo-directory
- '((nil . ((js-indent-level . 4)))))
-(dir-locals-set-directory-class "~/Davebox/work/duckduckgo/" 'duckduckgo-directory)
-(add-to-list 'auto-mode-alist '("/duckduckgo-privacy-extension/build/.*" .
-                                fundamental-mode))
-
 ;; Load host-specific settings from hosts/.
 (let* ((short-host (downcase (car (split-string (system-name) "\\."))))
        (local-conf (expand-file-name (format "%s.el" short-host) "~/.emacs.d/hosts")))
