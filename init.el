@@ -247,7 +247,6 @@
                                     (space-mark ?\xFEFF [? ])))
 
 ;; Display a long-line indicator for code.
-(setq display-fill-column-indicator-column t)
 (setq-default fill-column 80)
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 ;; Ensure it applies to code files, even if there's no applicable major mode.
