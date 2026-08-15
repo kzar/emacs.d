@@ -18,6 +18,7 @@
   (dolist (dir '("lisp" "lisp/rich-text" "lisp/chromium"))
     (add-to-list 'load-path (expand-file-name dir user-emacs-directory))))
 (require 'my-helpers)
+(require 'code-search)
 (use-package rich-text
   :ensure nil
   :commands (rich-text/copy-buffer rich-text/copy-region rich-text/yank))
@@ -135,6 +136,9 @@
 (use-package embark
   :bind (("C-." . embark-act))
   :config
+  (keymap-set embark-identifier-map "C" #'code-search/embark-search)
+  (keymap-set embark-region-map "C" #'code-search/embark-search)
+  (keymap-set embark-expression-map "C" #'code-search/embark-search)
   (keymap-set
    embark-file-map "g"
    (lambda (path)
@@ -518,6 +522,7 @@
 ;; Misc keybindings.
 (keymap-global-set "C-c SPC" #'kzar/indent-rectangle)
 (keymap-global-set "C-c d" #'duplicate-dwim)
+(keymap-global-set "C-c s" #'code-search/search)
 
 ;; Garbage collection. (Set high threshold while active, then collect on idle.)
 (use-package gcmh
