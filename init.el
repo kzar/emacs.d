@@ -180,22 +180,30 @@
 
 ;; Faster searching within projects using fd/ripgrep.
 (defvar consult-fd-args)
+(defun kzar/project-find-file ()
+  (interactive)
+  (consult-fd (project-root (project-current t))))
+
+(defun kzar/project-find-regexp ()
+  (interactive)
+  (consult-ripgrep (project-root (project-current t))))
+
 (defun kzar/project-find-dir ()
   (interactive)
   (let ((consult-fd-args
          '((if (executable-find "fdfind" 'remote) "fdfind" "fd")
            "--full-path --color=never --type=d")))
-    (consult-fd)))
+    (consult-fd (project-root (project-current t)))))
 
 (with-eval-after-load 'project
-  (keymap-set project-prefix-map "f" #'consult-fd)
-  (keymap-set project-prefix-map "g" #'consult-ripgrep)
+  (keymap-set project-prefix-map "f" #'kzar/project-find-file)
+  (keymap-set project-prefix-map "g" #'kzar/project-find-regexp)
   (keymap-set project-prefix-map "d" #'kzar/project-find-dir)
   (keymap-set project-prefix-map "m" #'magit-project-status)
   (when-let ((e (assq 'project-find-file   project-switch-commands)))
-    (setcar e #'consult-fd))
+    (setcar e #'kzar/project-find-file))
   (when-let ((e (assq 'project-find-regexp project-switch-commands)))
-    (setcar e #'consult-ripgrep))
+    (setcar e #'kzar/project-find-regexp))
   (when-let ((e (assq 'project-find-dir    project-switch-commands)))
     (setcar e #'kzar/project-find-dir))
   (add-to-list 'project-switch-commands '(magit-project-status "Magit") t))
@@ -349,7 +357,9 @@
          (expand-file-name
           "third_party/llvm-build/Release+Asserts/bin/clangd"
           (project-root project))))
-    (list (if (file-exists-p project-clangd) project-clangd "clangd")
+    (list (if (file-exists-p project-clangd)
+              (file-local-name project-clangd)
+            "clangd")
           ;; Throttle clangd background indexing, which can be slow for large
           ;; repos.
           (format "-j=%d" (max 1 (/ (num-processors) 2)))
@@ -513,7 +523,8 @@
             (setq rcirc-ignore-buffer-activity-flag t)))
 
 ;; Tramp
-(setq tramp-default-method "ssh")
+(setq tramp-default-method "ssh"
+      enable-remote-dir-locals t)
 
 ;; Manually-invoked tools.
 (use-package php-mode :defer t)
