@@ -1,6 +1,7 @@
 ;;; -*- lexical-binding: t; -*-
 
 (require 'cl-lib)
+(require 'project)
 
 (defvar auth-sources)
 (defvar browse-url-firefox-program nil)
@@ -53,6 +54,20 @@
         ; Clear any trailing whitespace
         (delete-trailing-whitespace (region-beginning) (region-end)))
       (pop-mark))))
+
+(defun kzar/copy-file-path ()
+  "Copy the current file's path relative to its project root."
+  (interactive)
+  (let* ((file (or buffer-file-name
+                   (user-error "Current buffer is not visiting a file.")))
+         (project (let ((non-essential nil))
+                    (project--find-in-directory
+                     (file-name-directory file)))))
+    (unless project
+      (user-error "Current file is not in a project."))
+    (let ((path (file-relative-name file (project-root project))))
+      (kill-new path)
+      (message "Copied path: %s" path))))
 
 (defun kzar/setup-linux-fonts ()
   "Use Symbola for Unicode glyphs and set the default font height."

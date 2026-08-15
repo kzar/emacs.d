@@ -533,6 +533,7 @@
 ;; Misc keybindings.
 (keymap-global-set "C-c SPC" #'kzar/indent-rectangle)
 (keymap-global-set "C-c d" #'duplicate-dwim)
+(keymap-global-set "C-c p" #'kzar/copy-file-path)
 (keymap-global-set "C-c s" #'code-search/search)
 
 ;; Garbage collection. (Set high threshold while active, then collect on idle.)
