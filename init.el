@@ -335,8 +335,13 @@
     :ext "\\.json5\\'"))
   (setq treesit-auto-langs
         '(bash c cpp css javascript json json5 python rust tsx typescript yaml))
+  (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 (setq treesit-font-lock-level 4)
+
+;; Firefox-specific files.
+(add-to-list 'auto-mode-alist
+             '("/\\.clangd\\'" . yaml-ts-mode))
 
 ;; Chromium-maintained language modes, vendored under lisp/chromium/.
 (use-package gn-mode
