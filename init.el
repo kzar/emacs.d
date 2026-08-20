@@ -311,6 +311,7 @@
   (remove-hook 'magit-refs-sections-hook #'magit-insert-tags))
 
 ;; Languages
+(add-to-list 'auto-mode-alist '("\\.m\\(?:m\\|ii?\\)\\'" . objc-mode))
 
 ;; Fall back to JSON mode until the JSON5 tree-sitter grammar is installed.
 (define-derived-mode json5-mode js-json-mode "JSON5"
@@ -377,7 +378,7 @@
 (use-package eglot
   :ensure nil
   :hook ((typescript-ts-mode tsx-ts-mode js-ts-mode
-          rust-ts-mode c-ts-mode c++-ts-mode) . eglot-ensure)
+          rust-ts-mode c-ts-mode c++-ts-mode objc-mode) . eglot-ensure)
   :custom ((eglot-autoshutdown t)
            ;; Don't log LSP events, too slow with clangd on large projects.
            (eglot-events-buffer-config '(:size 0)))
