@@ -357,23 +357,26 @@
   :mode ("\\.star\\'" . bazel-starlark-mode))
 
 ;; LSP
-(defun kzar/eglot-clangd-command (_interactive project)
-  ;; Use bundled clangd for Chromium, otherwise the system version.
-  (let ((project-clangd
-         (expand-file-name
-          "third_party/llvm-build/Release+Asserts/bin/clangd"
-          (project-root project))))
-    (list (if (file-exists-p project-clangd)
-              (file-local-name project-clangd)
-            "clangd")
-          ;; Throttle clangd background indexing, which can be slow for large
-          ;; repos.
-          (format "-j=%d" (max 1 (/ (num-processors) 2)))
-          "--background-index-priority=background"
-          ;; Recommended for Chromium; wrong headers are sometimes inserted.
-          "--header-insertion=never"
-          ;; Keep clangd output in the Eglot buffer quiet.
-          "--log=error")))
+(defvar-local clangd-executable nil)
+
+(defun kzar/clangd-path ()
+  "Return project clangd path or fall back to the installed version."
+  (if-let* ((path
+             (and (stringp clangd-executable)
+                  (file-truename
+                   (concat (file-remote-p default-directory)
+                           clangd-executable))))
+            ((file-executable-p path)))
+      (file-local-name path)
+    "clangd"))
+
+(defun kzar/eglot-clangd-command (_interactive _project)
+  (list (kzar/clangd-path)
+        ;; Throttle clangd background indexing.
+        (format "-j=%d" (max 1 (/ (num-processors) 2)))
+        "--background-index-priority=background"
+        ;; Keep clangd output in the Eglot buffer quiet.
+        "--log=error"))
 
 (use-package eglot
   :ensure nil

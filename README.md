@@ -54,6 +54,40 @@ Again more for me but here's how I use this repo:
       machine irc.libera.chat login kzar password LIBERA_PASSWORD
       machine irc.oftc.net login kzar password OFTC_PASSWORD
 
+## Chromium and Firefox development
+
+Add `.dir-locals.el` files to the project roots, to set up code search,
+compiling and clangd:
+
+```elisp
+;; Chromium
+;; Notes:
+;; - First enable `checkout_clangd` in `.gclient` and run `gclient sync`.
+;; - Also remember to regenerate `compile_commands.json` after building.
+((nil . ((code-search/url-builder . code-search/builder-chromium)
+         (compile-command . "autoninja -C out/Release chrome")
+         (clangd-executable .
+          "~/PATH_TO_CHROMIUM/src/third_party/llvm-build/Release+Asserts/bin/clangd"))))
+
+;; Firefox
+;; Notes:
+;; - First run `./mach ide vscode --no-interactive`
+((nil . ((code-search/url-builder . code-search/builder-firefox)
+         (compile-command . "./mach build")
+         (clangd-executable .
+          "~/.mozbuild/clang-tools/clang-tidy/bin/clangd"))))
+```
+
+Also remember to disable background indexing and header insertions in the
+project `.clangd` file or your global `clangd/config.yaml`:
+
+```yaml
+Index:
+  Background: Skip
+Completion:
+  HeaderInsertion: Never
+```
+
 ## Resources
 
  - [How I install Emacs on Linux](https://kzar.co.uk/blog/2020/04/14/how-i-install-emacs-on-linux) - A blog post I wrote about setting up Emacs, a little out of date now.
