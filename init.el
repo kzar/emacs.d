@@ -32,6 +32,7 @@
       initial-scratch-message ";; Hello Dave\n")
 
 (prefer-coding-system 'utf-8)
+(load-theme 'wombat t)
 
 (dolist (dir '("/opt/homebrew/bin"
                "/opt/homebrew/opt/llvm/bin"
@@ -50,6 +51,7 @@
 
 (column-number-mode 1)
 (pixel-scroll-precision-mode 1)
+(tool-bar-mode -1)
 (undelete-frame-mode 1)
 (which-key-mode 1)
 
@@ -74,9 +76,6 @@
 
 ;; No lock files (they confuse tools that watch for file changes).
 (setq create-lockfiles nil)
-
-;; Tool bar with icons + text labels.
-(setq tool-bar-style 'both)
 
 ;; Make highlighted text yankable (primary selection).
 (setq select-enable-primary t)

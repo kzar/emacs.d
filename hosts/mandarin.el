@@ -16,3 +16,8 @@
 
 ; Tweak the font size.
 (set-face-attribute 'default nil :height 125)
+
+; Dark-mode (to match wombat theme).
+(modify-all-frames-parameters
+ '((ns-appearance . dark)
+   (ns-transparent-titlebar . t)))
