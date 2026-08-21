@@ -444,6 +444,7 @@
   :bind ("C-c t" . ghostel)
   :custom
   (ghostel-shell-integration t)
+  (ghostel-ssh-install-terminfo t)
   (ghostel-module-auto-install 'download))
 
 ;; Markdown
