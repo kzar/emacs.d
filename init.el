@@ -200,13 +200,20 @@
   (keymap-set project-prefix-map "g" #'kzar/project-find-regexp)
   (keymap-set project-prefix-map "d" #'kzar/project-find-dir)
   (keymap-set project-prefix-map "m" #'magit-project-status)
+  (keymap-set project-prefix-map "t" #'ghostel-project)
+  (keymap-unset project-prefix-map "s")
+  (keymap-unset project-prefix-map "e")
   (when-let ((e (assq 'project-find-file   project-switch-commands)))
     (setcar e #'kzar/project-find-file))
   (when-let ((e (assq 'project-find-regexp project-switch-commands)))
     (setcar e #'kzar/project-find-regexp))
   (when-let ((e (assq 'project-find-dir    project-switch-commands)))
     (setcar e #'kzar/project-find-dir))
-  (add-to-list 'project-switch-commands '(magit-project-status "Magit") t))
+  (add-to-list 'project-switch-commands '(magit-project-status "Magit") t)
+  (add-to-list 'project-switch-commands '(ghostel-project "Terminal") t)
+  (dolist (command '(project-shell project-eshell))
+    (setq project-switch-commands
+          (assq-delete-all command project-switch-commands))))
 
 ;; Ensure gclient managed projects (e.g. Chromium) are treated as one project.
 (defvar kzar/gclient-root-cache (make-hash-table :test 'equal))
@@ -432,10 +439,13 @@
 (add-to-list 'auto-mode-alist
              '("/\\(?:DEPS\\|WATCHLISTS\\)\\'" . python-mode))
 
-;; Stop inferior shells from echoing input twice.
-(defun echo-false-comint ()
-  (setq comint-process-echoes t))
-(add-hook 'comint-mode-hook #'echo-false-comint)
+;; Use Ghostty (well Ghostel) terminal emulator.
+(use-package ghostel
+  :commands (ghostel ghostel-project)
+  :bind ("C-c t" . ghostel)
+  :custom
+  (ghostel-shell-integration t)
+  (ghostel-module-auto-install 'download))
 
 ;; Markdown
 (use-package markdown-mode
