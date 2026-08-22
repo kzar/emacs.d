@@ -23,6 +23,19 @@
   :ensure nil
   :commands (rich-text/copy-buffer rich-text/copy-region rich-text/yank))
 
+;; Theme and colours.
+(load-theme 'wombat t t)
+(custom-theme-set-faces
+ 'wombat
+ '(error ((t (:foreground "#cc3a35" :weight bold)))))
+(enable-theme 'wombat)
+
+(custom-theme-set-faces
+ 'user
+ '(whitespace-tab ((t (:background "#af0000" :foreground "white"))))
+ '(whitespace-trailing ((t (:background "#af0000" :foreground "white"))))
+ '(jinx-misspelled ((t (:underline (:style wave :color "red"))))))
+
 ;; Set my username etc.
 (setq user-full-name "Dave Vandyke"
       user-mail-address "kzar@kzar.co.uk")
@@ -32,7 +45,6 @@
       initial-scratch-message ";; Hello Dave\n")
 
 (prefer-coding-system 'utf-8)
-(load-theme 'wombat t)
 
 (dolist (dir '("/opt/homebrew/bin"
                "/opt/homebrew/opt/llvm/bin"
@@ -64,11 +76,10 @@
 (repeat-mode 1)
 (kill-ring-deindent-mode 1)
 
-;; Highlight matching parens green.
+;; Highlight matching parens.
 (show-paren-mode 1)
 (setq show-paren-delay 0
       show-paren-context-when-offscreen 'overlay)
-(set-face-background 'show-paren-match "#99FF00")
 
 ;; Set default code indent to 2 spaces.
 (setq-default tab-width 2
@@ -255,7 +266,6 @@
 (setq whitespace-style '(face trailing tabs space-mark)
       whitespace-global-modes '(not rcirc-mode magit-mode))
 (global-whitespace-mode)
-(set-face-attribute 'whitespace-tab nil :background "red" :foreground "white")
 ;; Also highlight non-ASCII characters.
 (setq whitespace-tab-regexp "\\([\t[:nonascii:]]\\)")
 ;; Display zero-width Unicode characters as standard spaces so we don't miss them.
@@ -275,10 +285,7 @@
 (use-package jinx
   :hook (emacs-startup . global-jinx-mode)
   :bind (("C-c C-M-i" . jinx-correct))
-  :custom (jinx-languages "en_GB")
-  :config
-  (set-face-attribute 'jinx-misspelled nil
-                      :underline '(:style wave :color "Red1")))
+  :custom (jinx-languages "en_GB"))
 
 ;; Fonts
 (defvar kzar/gui-frame-setup-done nil
@@ -473,15 +480,7 @@
   :hook (web-mode . (lambda () (keymap-local-set "RET" #'newline-and-indent)))
   :custom ((web-mode-display-table nil)
            (web-mode-code-indent-offset 2)
-           (web-mode-markup-indent-offset 2))
-  :config
-  (set-face-attribute 'web-mode-html-tag-face nil :foreground "blue")
-  (set-face-attribute 'web-mode-html-attr-name-face nil :foreground "brown")
-  (set-face-attribute 'web-mode-html-tag-bracket-face nil :foreground "black")
-  (set-face-attribute 'web-mode-html-attr-equal-face nil :foreground "black")
-  (set-face-attribute 'web-mode-doctype-face nil :foreground "purple")
-  (set-face-attribute 'web-mode-function-name-face nil :foreground "blue")
-  (set-face-attribute 'web-mode-function-call-face nil :foreground "black"))
+           (web-mode-markup-indent-offset 2)))
 
 ;; CSS
 (setq css-indent-offset 2)
@@ -497,11 +496,10 @@
         org-agenda-files '("~/Davebox/todo-org/todo.org")
         org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
                             (sequence "WAITING(w@/!)" "CANCELLED(c@/!)"))
-        org-todo-keyword-faces '(("TODO" . (:foreground "black" :weight bold))
-                                 ("NEXT" . (:foreground "red" :weight bold))
-                                 ("WAITING" . (:foreground "orange" :weight bold))
-                                 ("DONE" . (:foreground "forest green" :weight bold))
-                                 ("CANCELLED" . (:foreground "forest green" :weight bold)))
+        org-todo-keyword-faces
+        '(("TODO" . (:inherit default :weight bold))
+          ("NEXT" . (:inherit error :weight bold))
+          ("WAITING" . (:inherit warning :weight bold)))
         org-log-reschedule 'time
         org-todo-repeat-to-state t
         calendar-week-start-day 1
