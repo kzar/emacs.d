@@ -124,7 +124,8 @@
 ;; Search and navigation.
 (use-package consult
   :commands (consult-completion-in-region consult-fd consult-ripgrep)
-  :defines consult-source-buffer
+  :defines (consult-fd-args consult-fd-directory-args
+                            consult-ripgrep-args consult-source-buffer)
   :bind (("C-x b" . consult-buffer)
          ("M-y"   . consult-yank-pop)
          ("M-g g" . consult-goto-line)
@@ -140,6 +141,11 @@
           xref-show-xrefs-function #'consult-xref
           xref-show-definitions-function #'consult-xref)
   :config
+  (setq consult-fd-args (seq-union (ensure-list consult-fd-args)
+                                   '("--hidden" "--exclude=.git"))
+        consult-fd-directory-args (append consult-fd-args '("--type=d"))
+        consult-ripgrep-args (seq-union (ensure-list consult-ripgrep-args)
+                                        '("--hidden" "--glob=!.git")))
   (setf (plist-get consult-source-buffer :name) nil))
 
 ;; Actions for completion candidates and things at point.
@@ -189,7 +195,6 @@
 ;; Projects
 
 ;; Faster searching within projects using fd/ripgrep.
-(defvar consult-fd-args)
 (defun kzar/project-find-file ()
   (interactive)
   (consult-fd (project-root (project-current t))))
@@ -200,9 +205,8 @@
 
 (defun kzar/project-find-dir ()
   (interactive)
-  (let ((consult-fd-args
-         '((if (executable-find "fdfind" 'remote) "fdfind" "fd")
-           "--full-path --color=never --type=d")))
+  (require 'consult)
+  (let ((consult-fd-args consult-fd-directory-args))
     (consult-fd (project-root (project-current t)))))
 
 (with-eval-after-load 'project
