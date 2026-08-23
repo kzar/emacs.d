@@ -5,10 +5,11 @@ Description=Emacs: the extensible, self-documenting text editor
 Type=forking
 ExecStart=/usr/bin/emacs --daemon
 ExecStop=/usr/bin/emacsclient --eval "(kill-emacs)"
-Environment=SSH_AUTH_SOCK=%t/keyring/ssh
 Environment=GTK_THEME=Adwaita:dark
 Restart=always
 TimeoutStartSec=infinity
+
+# Inherit SSH_AUTH_SOCK from the systemd user manager, the path varies by host.
 
 # If a process spawned by Emacs (e.g. clangd language server) uses too much RAM,
 # take care to kill that but keep the Emacs server itself running.
