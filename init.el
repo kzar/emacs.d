@@ -245,8 +245,7 @@
 (defun kzar/gclient-root (vc-root)
   (or (gethash vc-root kzar/gclient-root-cache)
       (puthash vc-root
-               (or (and (not (file-remote-p vc-root))
-                        (kzar/gclient-calculate-root vc-root))
+               (or (kzar/gclient-calculate-root vc-root)
                    vc-root)
                kzar/gclient-root-cache)))
 
