@@ -18,6 +18,7 @@
   (dolist (dir '("lisp" "lisp/rich-text" "lisp/chromium"))
     (add-to-list 'load-path (expand-file-name dir user-emacs-directory))))
 (require 'my-helpers)
+(require 'project-helpers)
 (require 'code-search)
 (use-package rich-text
   :ensure nil
@@ -142,10 +143,12 @@
           xref-show-definitions-function #'consult-xref)
   :config
   (setq consult-fd-args (seq-union (ensure-list consult-fd-args)
-                                   '("--hidden" "--exclude=.git"))
+                                   '("--hidden" "--exclude=.git"
+                                     "--no-ignore-parent"))
         consult-fd-directory-args (append consult-fd-args '("--type=d"))
         consult-ripgrep-args (seq-union (ensure-list consult-ripgrep-args)
-                                        '("--hidden" "--glob=!.git")))
+                                        '("--hidden" "--glob=!.git"
+                                          "--no-ignore-parent")))
   (setf (plist-get consult-source-buffer :name) nil))
 
 ;; Actions for completion candidates and things at point.
@@ -194,69 +197,11 @@
 
 ;; Projects
 
-;; Faster searching within projects using fd/ripgrep.
-(defun kzar/project-find-file ()
-  (interactive)
-  (consult-fd (project-root (project-current t))))
-
-(defun kzar/project-find-regexp ()
-  (interactive)
-  (consult-ripgrep (project-root (project-current t))))
-
-(defun kzar/project-find-dir ()
-  (interactive)
-  (require 'consult)
-  (let ((consult-fd-args consult-fd-directory-args))
-    (consult-fd (project-root (project-current t)))))
-
 (with-eval-after-load 'project
-  (keymap-set project-prefix-map "f" #'kzar/project-find-file)
-  (keymap-set project-prefix-map "g" #'kzar/project-find-regexp)
-  (keymap-set project-prefix-map "d" #'kzar/project-find-dir)
   (keymap-set project-prefix-map "m" #'magit-project-status)
   (keymap-set project-prefix-map "t" #'ghostel-project)
-  (keymap-unset project-prefix-map "s")
-  (keymap-unset project-prefix-map "e")
-  (when-let ((e (assq 'project-find-file   project-switch-commands)))
-    (setcar e #'kzar/project-find-file))
-  (when-let ((e (assq 'project-find-regexp project-switch-commands)))
-    (setcar e #'kzar/project-find-regexp))
-  (when-let ((e (assq 'project-find-dir    project-switch-commands)))
-    (setcar e #'kzar/project-find-dir))
   (add-to-list 'project-switch-commands '(magit-project-status "Magit") t)
-  (add-to-list 'project-switch-commands '(ghostel-project "Terminal") t)
-  (dolist (command '(project-shell project-eshell))
-    (setq project-switch-commands
-          (assq-delete-all command project-switch-commands))))
-
-;; Ensure gclient managed projects (e.g. Chromium) are treated as one project.
-(defvar kzar/gclient-root-cache (make-hash-table :test 'equal))
-
-(defun kzar/gclient-calculate-root (vc-root)
-  (when-let* ((gclient-root (locate-dominating-file vc-root ".gclient"))
-              (solution-name (car (split-string
-                                   (file-relative-name vc-root gclient-root)
-                                   "/" t)))
-              (source-root (file-name-as-directory
-                            (expand-file-name solution-name gclient-root))))
-    (and (file-exists-p (expand-file-name ".git" source-root))
-         source-root)))
-
-(defun kzar/gclient-root (vc-root)
-  (or (gethash vc-root kzar/gclient-root-cache)
-      (puthash vc-root
-               (or (kzar/gclient-calculate-root vc-root)
-                   vc-root)
-               kzar/gclient-root-cache)))
-
-(defun kzar/gclient-project (dir)
-  (when-let* ((vc-project (project-try-vc dir))
-              (vc-root (and (eq (nth 1 vc-project) 'Git) (nth 2 vc-project)))
-              (source-root (kzar/gclient-root vc-root)))
-    (unless (equal source-root vc-root) (list 'vc 'Git source-root))))
-
-(with-eval-after-load 'project
-  (add-hook 'project-find-functions #'kzar/gclient-project -10))
+  (add-to-list 'project-switch-commands '(ghostel-project "Terminal") t))
 
 ;; Resolve symlinks when opening files, to ensure they are grouped by project
 ;; consistently.
@@ -373,21 +318,8 @@
   :mode ("\\.star\\'" . bazel-starlark-mode))
 
 ;; LSP
-(defvar-local clangd-executable nil)
-
-(defun kzar/clangd-path ()
-  "Return project clangd path or fall back to the installed version."
-  (if-let* ((path
-             (and (stringp clangd-executable)
-                  (file-truename
-                   (concat (file-remote-p default-directory)
-                           clangd-executable))))
-            ((file-executable-p path)))
-      (file-local-name path)
-    "clangd"))
-
 (defun kzar/eglot-clangd-command (_interactive _project)
-  (list (kzar/clangd-path)
+  (list (project-helpers/clangd-path)
         ;; Throttle clangd background indexing.
         (format "-j=%d" (max 1 (/ (num-processors) 2)))
         "--background-index-priority=background"
@@ -553,7 +485,7 @@
 ;; Misc keybindings.
 (keymap-global-set "C-c SPC" #'kzar/indent-rectangle)
 (keymap-global-set "C-c d" #'duplicate-dwim)
-(keymap-global-set "C-c p" #'kzar/copy-file-path)
+(keymap-global-set "C-c p" #'project-helpers/copy-file-path)
 (keymap-global-set "C-c s" #'code-search/search)
 
 ;; Garbage collection. (Set high threshold while active, then collect on idle.)

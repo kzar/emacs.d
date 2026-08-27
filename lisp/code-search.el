@@ -12,6 +12,7 @@
 ;;             code-search/builder-firefox))))
 
 (require 'thingatpt)
+(require 'project)
 (require 'url-util)
 
 (defvar code-search/known-url-builders
@@ -64,9 +65,10 @@ names can be TRAMP names.  The function must return a URL string.")
          (builder (or code-search/url-builder
                       (user-error
                        "Code search: URL builder not configured for this project")))
-         (root (or (locate-dominating-file file ".dir-locals.el")
-                   (user-error
-                    "Code search: Project root couldn't be determined.")))
+         (project (or (project-current nil (file-name-directory file))
+                      (user-error
+                       "Code search: Project root couldn't be determined.")))
+         (root (project-root project))
          (context (list :file file
                         :root root
                         :relative-file (file-relative-name file root)
