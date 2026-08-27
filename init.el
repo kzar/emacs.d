@@ -381,6 +381,13 @@
              '("/\\(?:DEPS\\|WATCHLISTS\\)\\'" . python-mode))
 
 ;; Use Ghostty (well Ghostel) terminal emulator.
+(use-package alert
+  :custom
+  (alert-default-style
+   (if (eq system-type 'darwin)
+       'osx-notifier
+     'libnotify)))
+
 (use-package ghostel
   :commands (ghostel ghostel-project)
   :bind ("C-c t" . ghostel)
