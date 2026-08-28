@@ -392,6 +392,7 @@
   :commands (ghostel ghostel-project)
   :bind ("C-c t" . ghostel)
   :custom
+  (ghostel-buffer-name-function #'ghostel-buffer-name-by-directory)
   (ghostel-shell-integration t)
   (ghostel-ssh-install-terminfo t)
   (ghostel-module-auto-install 'download))
