@@ -488,7 +488,12 @@
 
 ;; Manually-invoked tools.
 (use-package php-mode :defer t)
-(use-package notmuch :commands notmuch)
+(use-package notmuch
+  :commands notmuch
+  :bind (:map notmuch-show-mode-map
+              ("C-c d" . epa-mail-decrypt))
+  :hook (notmuch-show-mode . (lambda ()
+                               (setq-local epa-replace-original-text t))))
 
 ;; Misc keybindings.
 (keymap-global-set "C-c SPC" #'kzar/indent-rectangle)
