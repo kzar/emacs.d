@@ -267,6 +267,9 @@
 
 ;; Don't display tags, it's too slow for large repositories.
 (with-eval-after-load 'magit-status
+  (magit-add-section-hook 'magit-status-sections-hook
+                          #'magit-insert-worktrees
+                          nil t)
   (remove-hook 'magit-status-headers-hook #'magit-insert-tags-header))
 (with-eval-after-load 'magit-refs
   (remove-hook 'magit-refs-sections-hook #'magit-insert-tags))
