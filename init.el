@@ -148,7 +148,10 @@
         consult-fd-directory-args (append consult-fd-args '("--type=d"))
         consult-ripgrep-args (seq-union (ensure-list consult-ripgrep-args)
                                         '("--hidden" "--glob=!.git"
-                                          "--no-ignore-parent")))
+                                          "--no-ignore-parent"
+                                          ;; Suppress file read errors, e.g. for
+                                          ;; when rg hits a corrupted archive.
+                                          "--no-messages")))
   (setf (plist-get consult-source-buffer :name) nil))
 
 ;; Actions for completion candidates and things at point.
