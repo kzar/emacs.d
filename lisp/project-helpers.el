@@ -131,18 +131,28 @@ define the same variable."
                locals-root nil))))))
 
 (defvar-local clangd-executable nil
-  "Project-provided path to the clangd executable.")
+  "Project-provided path to the clangd executable.
+Relative paths are resolved against the project root.
+When nil, use clangd from PATH.")
 
 (defun project-helpers/clangd-path ()
-  "Return the project clangd path or fall back to the installed version."
-  (if-let* ((path
-             (and (stringp clangd-executable)
-                  (file-truename
-                   (concat (file-remote-p default-directory)
-                           clangd-executable))))
-            ((file-executable-p path)))
-      (file-local-name path)
-    "clangd"))
+  "Return the configured clangd path, or \"clangd\" when unset.
+Resolve relative paths from the project root."
+  (if (null clangd-executable)
+      "clangd"
+    (unless (stringp clangd-executable)
+      (user-error "clangd-executable must be a path string: %S" clangd-executable))
+    (let* ((file
+            (if (file-name-absolute-p clangd-executable)
+                (concat (file-remote-p default-directory) clangd-executable)
+              (if-let* ((project (project-current)))
+                  (expand-file-name clangd-executable (project-root project))
+                (user-error "Cannot resolve relative clangd path without a project: %s"
+                            clangd-executable))))
+           (path (file-truename file)))
+      (unless (and (file-regular-p path) (file-executable-p path))
+        (user-error "Configured clangd is missing or not executable: %s" file))
+      (file-local-name path))))
 
 (defun project-helpers/copy-file-path ()
   "Copy the current file's path relative to its project root."

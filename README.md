@@ -67,7 +67,7 @@ compiling and clangd:
 ((nil . ((code-search/url-builder . code-search/builder-chromium)
          (compile-command . "autoninja -C out/Release chrome")
          (clangd-executable .
-          "~/PATH_TO_CHROMIUM/src/third_party/llvm-build/Release+Asserts/bin/clangd"))))
+          "./third_party/llvm-build/Release+Asserts/bin/clangd"))))
 
 ;; Firefox
 ;; Notes:
