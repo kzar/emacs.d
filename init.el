@@ -201,6 +201,7 @@
 ;; Projects
 
 (with-eval-after-load 'project
+  (setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
   (keymap-set project-prefix-map "m" #'magit-project-status)
   (keymap-set project-prefix-map "t" #'ghostel-project)
   (add-to-list 'project-switch-commands '(magit-project-status "Magit") t)
@@ -268,14 +269,28 @@
             ;; slow for large repositories.
             '((follows . nil) (precedes . nil)))))
 
-;; Don't display tags, it's too slow for large repositories.
 (with-eval-after-load 'magit-status
+  ;; Add list of worktrees to the status buffer.
   (magit-add-section-hook 'magit-status-sections-hook
                           #'magit-insert-worktrees
                           nil t)
+  ;; Don't display tags, it's too slow for large repositories.
   (remove-hook 'magit-status-headers-hook #'magit-insert-tags-header))
 (with-eval-after-load 'magit-refs
   (remove-hook 'magit-refs-sections-hook #'magit-insert-tags))
+
+;; Worktree creation can be slow for large repositories so create them async,
+;; and display the output.
+(with-eval-after-load 'magit-worktree
+  (define-advice magit-worktree-checkout (:override (directory commit) kzar/async)
+    (let ((magit-process-popup-time 0))
+      (magit-run-git-async "worktree" "add"
+                         (magit--expand-worktree directory) commit)))
+  (define-advice magit-worktree-branch
+      (:override (directory branch start-point) kzar/async)
+    (let ((magit-process-popup-time 0))
+      (magit-run-git-async "worktree" "add" "-b" branch
+                         (magit--expand-worktree directory) start-point))))
 
 ;; Languages
 (add-to-list 'auto-mode-alist '("\\.m\\(?:m\\|ii?\\)\\'" . objc-mode))
