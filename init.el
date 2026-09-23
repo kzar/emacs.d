@@ -292,6 +292,13 @@
       (magit-run-git-async "worktree" "add" "-b" branch
                          (magit--expand-worktree directory) start-point))))
 
+;; When Magit opens its process buffer, jump to the end so that it scrolls
+;; automatically.
+(with-eval-after-load 'magit-process
+  (define-advice magit-process-display-buffer (:after (process) kzar/follow-output)
+    (when (eq (current-buffer) (process-buffer process))
+      (goto-char (point-max)))))
+
 ;; Languages
 (add-to-list 'auto-mode-alist '("\\.m\\(?:m\\|ii?\\)\\'" . objc-mode))
 
