@@ -88,6 +88,12 @@ Completion:
   HeaderInsertion: Never
 ```
 
+For automatic Firefox worktree setup, set up the post-checkout hook:
+
+```sh
+ln -s ~/.emacs.d/worktrees/firefox-post-checkout-hook .git/hooks/post-checkout
+```
+
 ## Resources
 
  - [How I install Emacs on Linux](https://kzar.co.uk/blog/2020/04/14/how-i-install-emacs-on-linux) - A blog post I wrote about setting up Emacs, a little out of date now.

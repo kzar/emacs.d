@@ -1,0 +1,9 @@
+{
+  "commands": [
+    "./mach ide vscode --no-interactive"
+  ],
+  "files": [
+    ".dir-locals.el",
+    ".clangd"
+  ]
+}

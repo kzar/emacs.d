@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+~/.emacs.d/worktrees/setup-worktree.py ~/.emacs.d/worktrees/firefox.json "$@"
