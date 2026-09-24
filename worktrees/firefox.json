@@ -1,5 +1,6 @@
 {
   "commands": [
+    "./mach npm ci --no-audit --no-fund",
     "./mach ide vscode --no-interactive"
   ],
   "files": [
