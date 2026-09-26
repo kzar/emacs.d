@@ -386,12 +386,19 @@
   (add-to-list 'auto-mode-alist (cons ext #'js-mode)))
 
 ;; Keep the nice indent-bounce feature from js2-mode.
+(defun kzar/js-ts-indent-bounce ()
+  "Bounce indent unless inside a block comment."
+  (interactive)
+  (if (nth 4 (syntax-ppss (line-beginning-position)))
+      (indent-according-to-mode)
+    (js2-indent-bounce)))
+
 (dolist (hook '(js-ts-mode-hook typescript-ts-mode-hook tsx-ts-mode-hook))
   (add-hook
    hook
    (lambda ()
      (electric-indent-local-mode -1)
-     (keymap-local-set "<tab>" #'js2-indent-bounce))))
+     (keymap-local-set "<tab>" #'kzar/js-ts-indent-bounce))))
 
 (with-eval-after-load 'c-ts-mode
   (setq c-ts-mode-indent-offset 2
