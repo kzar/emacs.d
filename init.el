@@ -161,6 +161,8 @@
   (keymap-set embark-identifier-map "C" #'code-search/embark-search)
   (keymap-set embark-region-map "C" #'code-search/embark-search)
   (keymap-set embark-expression-map "C" #'code-search/embark-search)
+  (add-to-list 'embark-around-action-hooks
+               '(code-search/embark-search code-search/embark-search))
   (keymap-set
    embark-file-map "g"
    (lambda (path)
