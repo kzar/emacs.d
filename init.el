@@ -26,10 +26,14 @@
 
 ;; Theme and colours.
 (load-theme 'wombat t t)
+(enable-theme 'wombat)
 (custom-theme-set-faces
  'wombat
- '(error ((t (:foreground "#cc3a35" :weight bold)))))
-(enable-theme 'wombat)
+ '(error ((t (:foreground "#cc3a35" :weight bold))))
+ ;; Orange cursor and search matches, so they are easier to see.
+ '(cursor ((t (:background "#f29112"))))
+ '(isearch ((t (:background "#f29112" :foreground "#242424" :weight bold))))
+ '(lazy-highlight ((t (:background "#e5c06d" :foreground "#242424")))))
 
 (custom-theme-set-faces
  'user
