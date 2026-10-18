@@ -30,10 +30,11 @@
 (custom-theme-set-faces
  'wombat
  '(error ((t (:foreground "#cc3a35" :weight bold))))
- ;; Orange cursor and search matches, so they are easier to see.
+ ;; Orange cursor, highlights, and search matches, so they are easier to see.
  '(cursor ((t (:background "#f29112"))))
  '(isearch ((t (:background "#f29112" :foreground "#242424" :weight bold))))
- '(lazy-highlight ((t (:background "#e5c06d" :foreground "#242424")))))
+ '(lazy-highlight ((t (:background "#e5c06d" :foreground "#242424"))))
+ '(region ((t (:background "#533a24" :extend t)))))
 
 (custom-theme-set-faces
  'user
